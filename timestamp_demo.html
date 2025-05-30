@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Timestamp Demo</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .result { margin: 10px 0; padding: 10px; background: #f0f0f0; }
+    </style>
+</head>
+<body>
+    <h2>时间戳演示</h2>
+    
+    <div id="current"></div>
+    <div id="custom"></div>
+
+    <script>
+        function updateTime() {
+            // 获取当前时间戳
+            const timestamp = Date.now();
+            
+            // 转换为人类可读的时间
+            const date = new Date(timestamp);
+            
+            document.getElementById('current').innerHTML = `
+                <div class="result">
+                    <h3>当前时间：</h3>
+                    时间戳（毫秒）: ${timestamp}<br>
+                    人类可读时间: ${date.toLocaleString()}<br>
+                    年: ${date.getFullYear()}<br>
+                    月: ${date.getMonth() + 1}<br>
+                    日: ${date.getDate()}<br>
+                    时: ${date.getHours()}<br>
+                    分: ${date.getMinutes()}<br>
+                    秒: ${date.getSeconds()}<br>
+                    毫秒: ${date.getMilliseconds()}
+                </div>
+            `;
+
+            // 示例：如何解析一个时间戳
+            const exampleTimestamp = 1743011058493;
+            const timestampDate = new Date(exampleTimestamp);
+
+            document.getElementById('custom').innerHTML = `
+                <div class="result">
+                    <h3>时间戳解析示例：</h3>
+                    时间戳: ${exampleTimestamp}<br>
+                    对应时间: ${timestampDate.toLocaleString()}
+                </div>
+            `;
+        }
+
+        // 每秒更新一次
+        updateTime();
+        setInterval(updateTime, 1000);
+    </script>
+</body>
+</html> 

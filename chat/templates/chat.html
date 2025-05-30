@@ -1,0 +1,3160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Workplace Safety Chatbot</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="stylesheet" href="/static/css/vendor/jquery-ui.css">
+  <link rel="stylesheet" href="/static/css/vendor/material-icons.css">
+  <script src="/static/js/vendor/jquery-3.6.0.min.js"></script>
+  <script src="/static/js/vendor/jquery-ui.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+  <style>
+        .container {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .sidebar {
+            width: 250px;
+            padding: 20px;
+            background-color: #2c3e50;
+            color: white;
+            transition: width 0.3s ease;
+            position: relative;
+            overflow-x: hidden;
+            overflow-y: auto; /* Add vertical scrolling */
+            flex-shrink: 0;
+            max-height: 100vh; /* Ensure sidebar doesn't exceed viewport height */
+            scrollbar-width: thin; /* For Firefox */
+            scrollbar-color: #34495e #2c3e50; /* For Firefox */
+        }
+
+        /* Custom scrollbar styling for Webkit browsers (Chrome, Safari, etc.) */
+        .sidebar::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: #2c3e50;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background-color: #34495e;
+            border-radius: 4px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background-color: #3d5061;
+        }
+
+        .sidebar.collapsed {
+            width: 0;
+            padding: 0;
+        }
+
+        .sidebar.collapsed h3,
+        .sidebar.collapsed #field-status {
+            display: none;
+        }
+
+        .chat-container {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            width: calc(100% - 250px);
+            margin-left: 0;
+            transition: width 0.3s ease, margin-left 0.3s ease;
+            position: relative;
+        }
+
+        .sidebar.collapsed+.chat-container {
+            width: 100%;
+        }
+
+        .toggle-sidebar {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 100000;
+            background-color: #2c3e50;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-sidebar:hover {
+            background-color: #3d5061;
+        }
+
+        .toggle-sidebar i {
+            font-size: 24px;
+            transition: transform 0.3s ease;
+        }
+
+        .chat-container h2 {
+            text-align: center;
+            margin: 0 0 20px 0;
+        }
+
+
+        #chatbox {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            margin-bottom: 80px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: white;
+        }
+
+        .message {
+            margin: 10px 0;
+            padding: 10px 15px;
+            border-radius: 15px;
+            max-width: 70%;
+            word-wrap: break-word;
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .user-message {
+            background-color: #007bff;
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 5px;
+        }
+
+        .bot-message {
+            background-color: #f1f0f0;
+            color: black;
+            margin-right: auto;
+            border-bottom-left-radius: 5px;
+        }
+
+        .widget-container {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: none;
+            z-index: 1000;
+            margin: 10px 0;
+            width: fit-content;
+            min-width: 250px;
+        }
+
+        #date-picker-widget {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        #date-picker-widget input {
+            width: 120px;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        #date-picker-widget button {
+            padding: 5px 15px;
+            white-space: nowrap;
+        }
+
+        .ui-datepicker {
+            z-index: 9999 !important;
+        }
+
+        .autocomplete-wrapper {
+            position: relative;
+            width: 300px;
+        }
+
+        .input-with-arrow {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .dropdown-arrow {
+            position: absolute;
+            right: 0;
+            height: 100%;
+            padding: 0 10px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .dropdown-arrow:hover {
+            color: #333;
+        }
+
+        #severity-input {
+            width: 100%;
+            padding: 10px;
+            padding-right: 30px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            max-height: 200px;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 0 0 5px 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .dropdown-item {
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f0f0f0;
+        }
+
+        .input-container {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            width: calc(100% - 40px);
+            max-width: calc(100% - 40px);
+        }
+
+        .input-container input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            min-width: 0;
+        }
+
+        .input-container button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        #confirm-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        #confirm-buttons button {
+            padding: 8px 20px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .summary-buttons-inline {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .summary-buttons-inline button {
+            padding: 8px 20px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        #confirm-buttons button:hover {
+            opacity: 0.9;
+        }
+
+        .message .widget-container {
+            margin-top: 10px;
+            margin-bottom: 0;
+        }
+
+        .message .widget-container button:hover {
+            opacity: 0.9;
+        }
+
+        .voice-button {
+            padding: 10px !important;
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #007bff !important;
+            transition: background-color 0.3s;
+        }
+
+        .voice-button:hover {
+            background-color: #0056b3 !important;
+        }
+
+        .voice-button i {
+            font-size: 20px;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .radio-option:hover {
+            background-color: #f0f0f0;
+        }
+
+        .radio-option input[type="radio"] {
+            margin: 0;
+        }
+
+        .radio-option span {
+            font-size: 16px;
+        }
+
+        .accordion-section {
+            margin: 10px 0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .accordion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background-color: #34495e;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .accordion-header:hover {
+            background-color: #2c3e50;
+        }
+
+        .accordion-header i {
+            transition: transform 0.3s;
+        }
+
+        .accordion-header.active i {
+            transform: rotate(180deg);
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background-color: #2c3e50;
+        }
+
+        .accordion-content.active {
+            max-height: none !important;   /* 去掉 500px 封顶 */
+            overflow: visible !important;  /* 允许内容溢出 */
+            padding: 10px;
+        }
+
+        .accordion-content ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .accordion-content li {
+            margin: 8px 0;
+            padding: 5px;
+            border-radius: 4px;
+        }
+
+        /* Styles for the dropdown widgets */
+        .field-dropdown {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: white;
+        }
+
+        .btn-info {
+            background-color: #17a2b8;
+            color: white;
+        }
+
+        #additional-info textarea {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 8px;
+        }
+
+        .unfinished-dialog {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .unfinished-dialog .dialog-content {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .unfinished-dialog h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .unfinished-dialog p {
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .unfinished-dialog .dialog-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .unfinished-dialog .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+
+        .unfinished-dialog .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .unfinished-dialog .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+        .unfinished-dialog .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .unfinished-dialog .btn-secondary:hover {
+            background-color: #545b62;
+        }
+
+        .dialog-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .dialog-buttons button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .dialog-buttons button:first-child {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .dialog-buttons button:last-child {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        /* Add these responsive styles */
+        @media screen and (max-width: 768px) {
+
+            /* Adjust base font size */
+            body {
+                font-size: 16px;
+            }
+
+            /* Adjust container padding */
+            .container {
+                position: relative;
+                overflow: hidden;
+            }
+
+            /* Adjust sidebar */
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 80%;
+                max-width: 300px;
+                height: 100%;
+                z-index: 9999;
+                transform: translateX(-100%);
+                overflow-y: auto; /* Ensure scrolling works on mobile */
+                -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+            }
+
+            .sidebar:not(.collapsed) {
+                transform: translateX(0);
+            }
+
+
+            /* Adjust chat container */
+            .chat-container {
+                width: 100% !important;
+            }
+
+            .chat-container h2 {
+                font-size: 1.5em;
+                margin-bottom: 15px;
+            }
+
+            /* Adjust messages */
+            .message {
+                max-width: 85%;
+            }
+
+            .toggle-sidebar {
+                top: 10px;
+                left: 10px;
+            }
+
+            .input-container {
+                position: fixed;
+                bottom: 10px;
+                left: 10px;
+                right: 10px;
+
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 8px;
+            }
+
+
+            .input-container input {
+                flex: 1;
+                min-width: 0;
+            }
+
+            .input-container button {
+                padding: 8px 15px;
+                font-size: 16px;
+            }
+
+            .voice-button {
+                flex-shrink: 0;
+                width: auto;
+                height: auto;
+            }
+
+            /* Adjust widgets */
+            .widget-container {
+                padding: 12px;
+                margin: 8px 0;
+            }
+
+            .autocomplete-wrapper {
+                width: 100%;
+            }
+
+            #severity-input,
+            #accident-type-input,
+            #accident-agent-input,
+            #injury-type-input,
+            #injury-agent-input {
+                font-size: 16px;
+                padding: 8px;
+            }
+
+            /* Adjust buttons */
+            .btn-primary,
+            .btn-secondary,
+            .btn-info {
+                font-size: 16px;
+                padding: 8px 15px;
+            }
+
+            /* Adjust radio buttons */
+            .radio-option span {
+                font-size: 16px;
+            }
+
+            /* Adjust accordion */
+            .accordion-header {
+                padding: 8px;
+                font-size: 0.95em;
+            }
+
+            .accordion-content li {
+                font-size: 0.9em;
+                padding: 4px;
+            }
+        }
+
+        /* Additional styles for very small screens */
+        @media screen and (max-width: 480px) {
+
+            /* Further reduce sidebar width */
+            .sidebar {
+                width: 90%;
+            }
+
+
+            /* Adjust message width */
+            .message {
+                max-width: 90%;
+            }
+        }
+
+        .unfinished-reports-dialog {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .unfinished-reports-dialog .dialog-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .reports-list {
+            margin: 20px 0;
+        }
+
+        .report-item {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .report-info {
+            flex: 1;
+        }
+
+        .report-info p {
+            margin: 5px 0;
+        }
+
+        .dialog-buttons {
+            text-align: right;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .admin-login-dialog {
+        position: fixed;
+        top:0; left:0; right:0; bottom:0;
+        background: rgba(0,0,0,0.5);
+        display:flex; align-items:center; justify-content:center;
+        z-index:10000;
+        }
+        .admin-login-dialog .dialog-content {
+        background:white; padding:20px; border-radius:6px;
+        width:300px; box-shadow:0 2px 10px rgba(0,0,0,.2);
+        }
+        .btn-danger { background:#dc3545; color:white; border:none; padding:8px 12px; border-radius:4px; cursor:pointer; }
+        .btn-danger:hover { opacity:0.9; }
+
+        /* ---------- typing (three-dot) animation ---------- */
+        .typing-indicator{
+            display:flex;
+            align-items:center;
+            height:16px;               /* 与文字行高接近即可 */
+            gap:4px;                   /* 点与点的间距 */
+        }
+
+        .typing-indicator span{
+            width:6px;
+            height:6px;
+            border-radius:50%;
+            background:#999;           /* 根据主题调色 */
+            opacity:0;
+            animation:typingBlink 1.2s infinite ease-in-out;
+        }
+
+        /* 依次错位，形成循环效果 */
+        .typing-indicator span:nth-child(2){animation-delay:0.2s;}
+        .typing-indicator span:nth-child(3){animation-delay:0.4s;}
+
+        @keyframes typingBlink{
+            0%,80%,100%{opacity:0;}
+            40%       {opacity:1;}
+        }
+
+        .action-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+
+        .action-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .action-btn i {
+            font-size: 20px;
+        }
+
+        /* File upload styles */
+        .uploaded-file {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background-color: #f8f9fa;
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+        }
+
+        .uploaded-file span {
+            flex: 1;
+            margin-right: 10px;
+            word-break: break-all;
+        }
+
+        .delete-file-btn {
+            background: none;
+            border: none;
+            color: #dc3545;
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .delete-file-btn:hover {
+            background-color: #ffebee;
+        }
+
+        .delete-file-btn i {
+            font-size: 18px;
+        }
+
+        .uploaded-files-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 10px 0;
+            max-width: 80%;
+        }
+
+        .uploaded-file {
+            display: inline-flex;
+            align-items: center;
+            background: #f0f0f0;
+            padding: 5px 10px;
+            border-radius: 15px;
+            margin: 2px;
+            font-size: 0.9em;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .uploaded-file i {
+            margin-right: 5px;
+            font-size: 1.2em;
+        }
+
+        .remove-file {
+            margin-left: 5px;
+            cursor: pointer;
+            color: #ff4444;
+            display: flex;
+            align-items: center;
+        }
+
+        .remove-file i {
+            font-size: 16px;
+        }
+
+        /* File preview dialog styles */
+        .file-preview-dialog {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .file-preview-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .file-preview-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 15px 0;
+        }
+
+        .preview-file-item {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .preview-file-item i {
+            margin-right: 10px;
+        }
+
+        .preview-file-name {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .file-preview-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .edit-btn {
+            background: none;
+            border: none;
+            color: #007bff;
+            cursor: pointer;
+            padding: 2px 5px;
+            margin-left: 5px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .edit-btn:hover {
+            background-color: #e9ecef;
+        }
+
+        #reporter-info-content {
+            padding: 10px;
+        }
+
+        #reporter-info-status li {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+
+        #user-info-widget input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        #user-info-widget input:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+      <!-- toggle button -->
+      <button class="toggle-sidebar" onclick="toggleSidebar()">
+        <img id="sidebar-toggle-icon"
+             src="/static/css/images/icons/chevron_left.png"
+             alt="Toggle sidebar"
+             class="icon">
+      </button>
+  
+      <div class="sidebar">
+        <h3>Incident Report</h3>
+
+            <!-- Reporter Information Section -->
+      <div class="accordion-section">
+        <div class="accordion-header" onclick="toggleAccordion('reporter-info')">
+          <span>Reporter Information</span>
+          <img src="/static/css/images/icons/expand_more.png"
+               alt="expand_more"
+               class="accordion-icon">
+        </div>
+        <div class="accordion-content" id="reporter-info-content">
+          <ul id="reporter-info-status">
+            <li>
+              <strong>Reporter:</strong>
+              <span id="field-reporter_name">Missing</span>
+              <button onclick="editUserInfo()" class="edit-btn" title="Edit reporter info">
+                <img src="/static/css/images/icons/edit.png"
+                     alt="edit"
+                     style="width:16px;height:16px;">
+              </button>
+            </li>
+            <li>
+              <strong>Job Title:</strong>
+              <span id="field-reporter_job">Missing</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Basic Information Section -->
+      <div class="accordion-section">
+        <div class="accordion-header" onclick="toggleAccordion('basic-info')">
+          <span>Basic Information</span>
+          <img src="/static/css/images/icons/expand_more.png"
+               alt="expand_more"
+               class="accordion-icon">
+        </div>
+        <div class="accordion-content" id="basic-info-content">
+          <ul id="basic-info-status">
+            <li><strong>Date:</strong> <span id="field-date">Missing</span></li>
+            <li><strong>Time:</strong> <span id="field-time">Missing</span></li>
+            <li><strong>Shift:</strong> <span id="field-shift">Missing</span></li>
+            <li><strong>Location:</strong> <span id="field-location">Missing</span></li>
+            <li><strong>Person Involved:</strong> <span id="field-person_involved">Missing</span></li>
+            <li><strong>Person Type:</strong> <span id="field-person_type">Missing</span></li>
+            <li><strong>Incident Type:</strong> <span id="field-incident_type">Missing</span></li>
+            <li><strong>Actions Taken:</strong> <span id="field-actions_taken">Missing</span></li>
+            <li><strong>Severity:</strong> <span id="field-severity">Missing</span></li>
+          </ul>
+        </div>
+      </div>
+
+            <!-- Injury Data Section -->
+            <div class="accordion-section">
+                <div class="accordion-header" onclick="toggleAccordion('injury-data')">
+                  <span>Injury Data</span>
+                  <img src="/static/css/images/icons/expand_more.png" alt="Expand" class="accordion-icon">
+                </div>
+                <div class="accordion-content" id="injury-data-content">
+                    <ul id="injury-data-status">
+                        <li><strong>Accident Type:</strong> <span id="field-accident_type">Missing</span></li>
+                        <li><strong>Accident Agent:</strong> <span id="field-accident_agent">Missing</span></li>
+                        <li><strong>Injury Type:</strong> <span id="field-injury_type">Missing</span></li>
+                        <li><strong>Injury Agent:</strong> <span id="field-injury_agent">Missing</span></li>
+                        <li><strong>SIF Case:</strong> <span id="field-sif_case">Missing</span></li>
+                    
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Near Miss Data Section -->
+            <div class="accordion-section">
+                <div class="accordion-header" onclick="toggleAccordion('near-miss-data')">
+                  <span>Near Miss Data</span>
+                  <img src="/static/css/images/icons/expand_more.png" alt="Expand" class="accordion-icon">
+                </div>
+                <div class="accordion-content" id="near-miss-data-content">
+                    <ul id="near-miss-data-status">
+                        <li><strong>SIF Case:</strong> <span id="field-near_miss_sif_case">Missing</span></li>
+                        <li><strong>Life Saving Rules:</strong> <span id="field-life_saving_rules">Missing</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Equipment Damage Data Section -->
+            <div class="accordion-section">
+                <div class="accordion-header" onclick="toggleAccordion('equipment-damage-data')">
+                  <span>Equipment Damage Data</span>
+                  <img src="/static/css/images/icons/expand_more.png" alt="Expand" class="accordion-icon">
+                </div>
+                <div class="accordion-content" id="equipment-damage-data-content">
+                    <ul id="equipment-damage-data-status">
+                        <li><strong>Damage Amount:</strong> <span id="field-damage_amount">Missing</span></li>
+                        <li><strong>Activity Type:</strong> <span id="field-activity_type">Missing</span></li>
+                        <li><strong>Incident Activity:</strong> <span id="field-incident_activity">Missing</span></li>
+                        <li><strong>Incident Agent:</strong> <span id="field-incident_agent">Missing</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="widget-container" id="user-info-widget" style="display: none">
+                <div style="margin-bottom: 10px;">
+                    <input type="text" id="reporter-name-input" placeholder="Your name" style="width: 100%; margin-bottom: 5px;">
+                    <input type="text" id="reporter-job-input" placeholder="Your job title" style="width: 100%;">
+                </div>
+                <button onclick="submitUserInfo()" class="btn-primary">Confirm</button>
+            </div>
+
+            <button id="show-unfinished-reports" class="btn btn-secondary">View Other Unfinished Reports</button>
+    </div>
+
+    <div class="chat-container">
+      <h2>Workplace Safety Chatbot</h2>
+      <div id="chatbox"></div>
+
+            <div class="widget-container" id="date-picker-widget" style="display: none">
+                <input type="text" id="datepicker" placeholder="Select date">
+                <button onclick="submitDate()" class="btn-primary">Confirm Date</button>
+            </div>
+            <div class="widget-container" id="time-picker-widget" style="display: none">
+                <input type="time" id="timeInput"/>
+                <button onclick="submitTime()" class="btn-primary">Confirm Time</button>
+            </div>
+
+            <div class="widget-container" id="person-type-picker" style="display: none">
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="person-type" value="Employee">
+                        <span>Employee</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="person-type" value="Contractor">
+                        <span>Contractor</span>
+                    </label>
+                </div>
+                <button onclick="submitPersonType()" class="btn-primary">Confirm</button>
+            </div>
+
+            <div class="widget-container" id="severity-picker" style="display: none">
+                <div class="autocomplete-wrapper">
+                    <div class="input-with-arrow">
+                        <input type="text" id="severity-input" placeholder="Select or type to search severity...">
+                        <button class="dropdown-arrow" onclick="toggleSeverityDropdown(event)">▼</button>
+                    </div>
+                    <div id="severity-dropdown" class="dropdown-content"></div>
+                </div>
+                <button onclick="submitSeverity()" class="btn-primary">Confirm Severity</button>
+            </div>
+            
+
+            <div class="widget-container" id="confirm-buttons" style="display: none">
+                <button onclick="confirmChoice('yes')" class="btn-primary">Yes</button>
+                <button onclick="confirmChoice('no')" class="btn-secondary">No</button>
+            </div>
+
+            <div class="widget-container" id="additional-info" style="display: none">
+                <textarea id="additional-info-input" placeholder="Enter your additional comments here..." rows="4"
+                    style="width: 100%; margin-bottom: 10px;"></textarea>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button onclick="closeAdditionalInfo()" class="btn-secondary">Close</button>
+                    <button onclick="submitAdditionalInfo()" class="btn-primary">Submit Additional Info</button>
+                </div>
+            </div>
+
+            <div class="widget-container" id="accident-type-picker" style="display: none">
+                <div class="autocomplete-wrapper">
+                    <div class="input-with-arrow">
+                        <input type="text" id="accident-type-input"
+                            placeholder="Select or type to search accident type...">
+                        <button class="dropdown-arrow" onclick="toggleFieldDropdown(event, 'accident-type')">▼</button>
+                    </div>
+                    <div id="accident-type-dropdown" class="dropdown-content"></div>
+                </div>
+                <button onclick="submitAccidentType()" class="btn-primary">Confirm Accident Type</button>
+            </div>
+
+            <div class="widget-container" id="accident-agent-picker" style="display: none">
+                <div class="autocomplete-wrapper">
+                    <div class="input-with-arrow">
+                        <input type="text" id="accident-agent-input"
+                            placeholder="Select or type to search accident agent...">
+                        <button class="dropdown-arrow" onclick="toggleFieldDropdown(event, 'accident-agent')">▼</button>
+                    </div>
+                    <div id="accident-agent-dropdown" class="dropdown-content"></div>
+                </div>
+                <button onclick="submitAccidentAgent()" class="btn-primary">Confirm Accident Agent</button>
+            </div>
+
+            <div class="widget-container" id="injury-type-picker" style="display: none">
+                <div class="autocomplete-wrapper">
+                    <div class="input-with-arrow">
+                        <input type="text" id="injury-type-input" placeholder="Select or type to search injury type...">
+                        <button class="dropdown-arrow" onclick="toggleFieldDropdown(event, 'injury-type')">▼</button>
+                    </div>
+                    <div id="injury-type-dropdown" class="dropdown-content"></div>
+                </div>
+                <button onclick="submitInjuryType()" class="btn-primary">Confirm Injury Type</button>
+            </div>
+
+            <div class="widget-container" id="injury-agent-picker" style="display: none">
+                <div class="autocomplete-wrapper">
+                    <div class="input-with-arrow">
+                        <input type="text" id="injury-agent-input"
+                            placeholder="Select or type to search injury agent...">
+                        <button class="dropdown-arrow" onclick="toggleFieldDropdown(event, 'injury-agent')">▼</button>
+                    </div>
+                    <div id="injury-agent-dropdown" class="dropdown-content"></div>
+                </div>
+                <button onclick="submitInjuryAgent()" class="btn-primary">Confirm Injury Agent</button>
+            </div>
+
+            <div class="widget-container" id="sif-case-picker" style="display: none">
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="sif-case" value="Non-SIF">
+                        <span>Non-SIF</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="sif-case" value="SIFc">
+                        <span>SIFc</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="sif-case" value="SIFp">
+                        <span>SIFp</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="sif-case" value="SIFa">
+                        <span>SIFa</span>
+                    </label>
+                </div>
+                <button onclick="submitSifCase()" class="btn-primary">Confirm SIF Case</button>
+            </div>
+
+            <div class="widget-container" id="near-miss-sif-case-picker" style="display: none">
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="near-miss-sif-case" value="Non-SIF">
+                        <span>Non-SIF</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="near-miss-sif-case" value="SIFc">
+                        <span>SIFc</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="near-miss-sif-case" value="SIFp">
+                        <span>SIFp</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="near-miss-sif-case" value="SIFa">
+                        <span>SIFa</span>
+                    </label>
+                </div>
+                <button onclick="submitNearMissSifCase()" class="btn-primary">Confirm SIF Case</button>
+            </div>
+
+            <div class="widget-container" id="life-saving-rules-picker" style="display: none">
+                <div class="autocomplete-wrapper">
+                    <div class="input-with-arrow">
+                        <input type="text" id="life-saving-rules-input"
+                            placeholder="Select or type to search life saving rules...">
+                        <button class="dropdown-arrow" onclick="toggleFieldDropdown(event, 'life-saving-rules')">▼</button>
+                    </div>
+                    <div id="life-saving-rules-dropdown" class="dropdown-content"></div>
+                </div>
+                <button onclick="submitLifeSavingRules()" class="btn-primary">Confirm Life Saving Rules</button>
+            </div>
+
+            <!-- Equipment Damage Widgets -->
+            <div class="widget-container" id="damage-amount-picker" style="display: none">
+                <div class="autocomplete-wrapper">
+                    <div class="input-with-arrow">
+                        <input type="text" id="damage-amount-input" placeholder="Select damage amount...">
+                        <button class="dropdown-arrow" onclick="toggleFieldDropdown(event, 'damage-amount')">▼</button>
+                    </div>
+                    <div id="damage-amount-dropdown" class="dropdown-content"></div>
+                </div>
+                <button onclick="submitDamageAmount()" class="btn-primary">Confirm Damage Amount</button>
+            </div>
+
+            <div class="widget-container" id="activity-type-picker" style="display: none">
+                <div class="autocomplete-wrapper">
+                    <div class="input-with-arrow">
+                        <input type="text" id="activity-type-input" placeholder="Select activity type...">
+                        <button class="dropdown-arrow" onclick="toggleFieldDropdown(event, 'activity-type')">▼</button>
+                    </div>
+                    <div id="activity-type-dropdown" class="dropdown-content"></div>
+                </div>
+                <button onclick="submitActivityType()" class="btn-primary">Confirm Activity Type</button>
+            </div>
+
+            <div class="widget-container" id="incident-activity-picker" style="display: none">
+                <div class="autocomplete-wrapper">
+                    <div class="input-with-arrow">
+                        <input type="text" id="incident-activity-input" placeholder="Select incident activity...">
+                        <button class="dropdown-arrow" onclick="toggleFieldDropdown(event, 'incident-activity')">▼</button>
+                    </div>
+                    <div id="incident-activity-dropdown" class="dropdown-content"></div>
+                </div>
+                <button onclick="submitIncidentActivity()" class="btn-primary">Confirm Incident Activity</button>
+            </div>
+
+            <div class="widget-container" id="equipment-incident-agent-picker" style="display: none">
+                <div class="autocomplete-wrapper">
+                    <div class="input-with-arrow">
+                        <input type="text" id="equipment-incident-agent-input" placeholder="Select incident agent...">
+                        <button class="dropdown-arrow" onclick="toggleFieldDropdown(event, 'equipment-incident-agent')">▼</button>
+                    </div>
+                    <div id="equipment-incident-agent-dropdown" class="dropdown-content"></div>
+                </div>
+                <button onclick="submitEquipmentIncidentAgent()" class="btn-primary">Confirm Incident Agent</button>
+            </div>
+
+            <div class="widget-container" id="submit-confirm-buttons" style="display: none">
+                <button onclick="submitConfirm('yes')" class="btn-primary">Submit</button>
+                <button onclick="submitConfirm('no')" class="btn-secondary">Go Back</button>
+            </div>
+
+            <div class="input-container">
+                <input type="text" id="user-input" placeholder="Type your message…">
+                <input type="file" id="file-upload" style="display:none;" multiple>
+                <button id="upload-btn" class="action-btn" title="Upload files">
+                  <img src="/static/css/images/icons/add.png" alt="Upload">
+                </button>
+                <button id="voice-btn" class="action-btn" title="Voice input">
+                  <img src="/static/css/images/icons/mic.png" alt="Voice">
+                </button>
+                <button id="send-btn" class="action-btn" title="Send message">
+                  <img src="/static/css/images/icons/send.png" alt="Send">
+                </button>
+              </div>
+            </div>
+          </div>
+
+    <script>
+        // Get session ID from Django template or generate a default one
+        const sessionId = '{{ session_id|default:"default" }}';
+        
+        window.lastSuggestionsList = null;
+        window.currentData = {};   // Global object to cache filled fields
+
+        document.getElementById('user-input').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        const severityOptions = [
+            "Minor - No injury",
+            "Moderate - First aid required",
+            "Serious - Medical treatment needed",
+            "Critical - Hospitalization required",
+            "Severe - Long-term disability possible",
+            "Fatal - Death"
+        ];
+
+        const fieldOptions = {
+            accident_type: [
+                "Caught Between", "Caught In", "Caught On", "Contact By",
+                "Contact With", "Exposure", "Exposure (Suspected)", "Fall Below",
+                "Fall Same Level", "Foreign Body Eye", "Slip (No Fall)",
+                "Slip/Trip/Fall", "Strain/Overexertion", "Struck Against", "Struck By"
+            ],
+            accident_agent: [
+                "Action of Employee", "AGV (Automated Guided Vehicle)", "Asbestos",
+                "Attaching a curtain to the rib", "Automated Welder (Pedestal/Spot)",
+                "Banding/Wrapping Materials&Equipt", "Beam", "Belt", "Bin",
+                "Bins/Totes/Racks or Gaylords", "Blower Fan (Heater/AC)", "Bulldozers",
+                "Bumper Handrail", "Burning/Welding, Lancing Equipment", "Cable",
+                "Chainfall, Come-a-long", "Chemicals Other", "Chemicals: Corrosive",
+                "Chemicals: Toxic", "Chisel"
+            ],
+            injury_type: [
+                "Abrasion", "Amputation", "Asphyxiation", "Avulsion", "Burn",
+                "Concussion", "Conjunctivitis", "Contusion", "Crushing", "Dermatitis",
+                "Dislocation", "Electric Flash", "Electric Shock/Burns", "Foreign Body",
+                "Fracture", "Frostbite", "Hearing Loss", "Heat Related", "Hernia",
+                "Insect Sting"
+            ],
+            injury_agent: [
+                "Rib", "Rock", "Rock Truck Cab", "Roller", "Roller flange",
+                "Roof bolt plates", "Roof bolts", "SARS-CoV-2", "Scaffold",
+                "Scooters, Buggies", "Scrap", "Shell Rock", "Shuttle Car",
+                "Slats and Clevises", "Sledgehammer", "Slivers/Burrs",
+                "Stairs/Railing", "Steam / Hot Water", "Steering wheel",
+                "Test Samples"
+            ],
+            sif_case: [
+                "Non-SIF",
+                "SIFc",
+                "SIFp",
+                "SIFa"
+            ],
+            life_saving_rules: [
+                "Bypassing Safety Controls",
+                "Confined Space",
+                "Driving",
+                "Fire",
+                "Fitness for Duty",
+                "Hazardous Energy Control",
+                "Line of Fire",
+                "Molten Metal",
+                "Safe Mechanical Lifting",
+                "Take 5",
+                "Work at Elevation"
+            ],
+            damage_amount: [
+                "$0 - $24,999",
+                "$25,000 - $99,999",
+                "$100,000 - $499,999",
+                "$500,000 - $999,999",
+                "$1,000,000+"
+            ],
+            activity_type: [
+                "Routine Operations",
+                "Maintenance",
+                "Construction",
+                "Emergency Response",
+                "Testing/Inspection",
+                "Transportation",
+                "Material Handling",
+                "Cleaning/Housekeeping",
+                "Office Work",
+                "Training"
+            ],
+            incident_activity: [
+                "Operating Machinery / Equipment",
+                "Manual Material Handling",
+                "Using Hand Tools",
+                "Using Power Tools",
+                "Driving/Operating Vehicle",
+                "Walking/Moving",
+                "Climbing/Descending",
+                "Lifting/Carrying",
+                "Welding/Cutting",
+                "Chemical Handling"
+            ],
+            equipment_incident_agent: [
+                "Molten Metal, Slag",
+                "Heavy Equipment",
+                "Hand Tools",
+                "Power Tools",
+                "Vehicles",
+                "Electrical Equipment",
+                "Chemicals",
+                "Structural Components",
+                "Material Handling Equipment",
+                "Pressure Systems"
+            ]
+        };
+
+        // === Widget map: report field name -> widget ID ===
+        const FIELD_WIDGET_MAP = {
+            "date": "date-picker",
+            "time": "time-picker-widget",
+            "severity": "severity-picker",
+            "person_type": "person-type-picker",
+            "sif_case": "sif-case-picker",
+            "life_saving_rules": "life-saving-rules-picker",
+            "accident_type": "accident-type-picker",
+            "accident_agent": "accident-agent-picker",
+            "injury_type": "injury-type-picker",
+            "injury_agent": "injury-agent-picker",
+            "damage_amount": "damage-amount-picker",
+            "activity_type": "activity-type-picker",
+            "incident_activity": "incident-activity-picker",
+            "incident_agent": "equipment-incident-agent-picker"
+        };
+
+        $(document).ready(function () {
+            $("#datepicker").datepicker({
+                dateFormat: 'yy-mm-dd',
+                changeMonth: true,
+                changeYear: true
+            });
+            $("#date-picker-widget").hide();
+            $("#severity-picker").hide();
+            setupSeverityAutocomplete();
+
+            // 页面加载时立即检查未完成的报告
+            fetch(`/api/chat/?session_id=${getSessionId()}&check_unfinished=true`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.has_unfinished) {
+                        showUnfinishedReportDialog(data.unfinished_data);
+                    } else {
+                        // 如果没有未完成的报告，初始化新的对话
+                        fetch(`/api/chat/?session_id=${getSessionId()}`)
+                            .then(r => r.json())
+                            .then(data => {
+                                if (data.response) {
+                                    appendMessage(data.response);
+                                }
+                            });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error checking unfinished report:', error);
+                    // 如果检查失败，仍然初始化新的对话
+                    fetch(`/api/chat/?session_id=${getSessionId()}`)
+                        .then(r => r.json())
+                        .then(data => {
+                            if (data.response) {
+                                appendMessage(data.response);
+                            }
+                        });
+                });
+
+            // File upload handling
+            document.getElementById('upload-btn').addEventListener('click', function() {
+                document.getElementById('file-upload').click();
+            });
+
+            document.getElementById('file-upload').addEventListener('change', function(e) {
+                const files = e.target.files;
+                if (files.length > 0) {
+                    const formData = new FormData();
+                    for (let i = 0; i < files.length; i++) {
+                        formData.append('files[]', files[i]);
+                    }
+
+                    // Show loading state
+                    $('#upload-btn i').text('hourglass_empty');
+
+                    $.ajax({
+                        url: '/upload_files/?session_id=' + getSessionId(),
+                        type: 'POST',
+                        data: formData,
+                        processData: false,
+                        contentType: false,
+                        success: function(response) {
+                            if (response.success) {
+                                // Create container for uploaded files
+                                let filesContainer = document.createElement('div');
+                                filesContainer.className = 'uploaded-files-container';
+                                
+                                // Add files to container
+                                response.files.forEach(file => {
+                                    const fileHtml = `
+                                        <div class="uploaded-file" title="${file.name}">
+                                            <i class="material-icons">${getFileIcon(file.type)}</i>
+                                            <span class="file-name">${file.name}</span>
+                                            <span class="remove-file" data-file-id="${file.id}">
+                                                <i class="material-icons">close</i>
+                                            </span>
+                                        </div>
+                                    `;
+                                    filesContainer.innerHTML += fileHtml;
+                                });
+                                
+                                // Create a message element
+                                const messageDiv = document.createElement('div');
+                                messageDiv.className = 'message user-message';
+                                messageDiv.appendChild(filesContainer);
+                                
+                                // Add to chatbox
+                                $('#chatbox').append(messageDiv);
+                                
+                                // Add bot response about files
+                                const fileMessage = `I've received ${response.files.length} file(s). They have been attached to your report.`;
+                                appendMessage(fileMessage);
+                                
+                                // Scroll to bottom
+                                const chatbox = document.getElementById('chatbox');
+                                chatbox.scrollTop = chatbox.scrollHeight;
+                            } else {
+                                alert('Error uploading files: ' + response.error);
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Upload error:', error);
+                            console.error('Server response:', xhr.responseText);
+                            alert('Error uploading files. Please try again.');
+                        },
+                        complete: function() {
+                            // Reset upload button and clear selection
+                            $('#upload-btn i').text('add');
+                            $('#file-upload').val('');
+                        }
+                    });
+                }
+            });
+
+            // Remove uploaded file
+            $(document).on('click', '.remove-file', function() {
+                const fileId = $(this).data('file-id');
+                const fileElement = $(this).closest('.uploaded-file');
+                
+                $.ajax({
+                    url: '/delete_file/?session_id=' + getSessionId(),
+                    type: 'POST',
+                    data: JSON.stringify({ file_id: fileId }),
+                    contentType: 'application/json',
+                    success: function(response) {
+                        if (response.success) {
+                            fileElement.remove();
+                        } else {
+                            alert('Error deleting file: ' + response.error);
+                        }
+                    },
+                    error: function() {
+                        alert('Error deleting file. Please try again.');
+                    }
+                });
+            });
+            // Check for stored user info
+            const storedUserInfo = localStorage.getItem('reporter_info');
+            if (storedUserInfo) {
+                const userInfo = JSON.parse(storedUserInfo);
+                document.getElementById('field-reporter_name').textContent = userInfo.name;
+                document.getElementById('field-reporter_job').textContent = userInfo.job;
+            }
+        });
+
+        function getFileIcon(fileType) {
+            if (fileType.startsWith('image/')) return 'image';
+            if (fileType.startsWith('video/')) return 'videocam';
+            if (fileType.startsWith('audio/')) return 'audiotrack';
+            if (fileType.includes('pdf')) return 'picture-as-pdf';
+            if (fileType.includes('word')) return 'description';
+            if (fileType.includes('excel') || fileType.includes('spreadsheet')) return 'table-chart';
+            if (fileType.includes('powerpoint') || fileType.includes('presentation')) return 'slideshow';
+            return 'insert-drive-file';
+        }
+
+        function setupSeverityAutocomplete() {
+            const input = document.getElementById('severity-input');
+            const dropdown = document.getElementById('severity-dropdown');
+
+            input.addEventListener('input', function () {
+                const value = this.value.toLowerCase();
+                updateSeverityDropdownItems(value);
+            });
+
+            document.addEventListener('click', function (e) {
+                if (!input.contains(e.target) &&
+                    !dropdown.contains(e.target) &&
+                    !e.target.classList.contains('dropdown-arrow')) {
+                    dropdown.style.display = 'none';
+                }
+            });
+        }
+
+        function toggleSeverityDropdown(event) {
+            event.preventDefault();
+            const dropdown = document.getElementById('severity-dropdown');
+            if (!dropdown) return;
+
+            if (dropdown.style.display === 'block') {
+                dropdown.style.display = 'none';
+            } else {
+                updateSeverityDropdownItems('');
+                dropdown.style.display = 'block';
+            }
+        }
+
+        function updateSeverityDropdownItems(searchValue) {
+            const dropdown = document.getElementById('severity-dropdown');
+            if (!dropdown) return;
+
+            dropdown.innerHTML = '';
+
+            const matches = severityOptions.filter(option =>
+                !searchValue || option.toLowerCase().includes(searchValue.toLowerCase())
+            );
+
+            if (matches.length > 0) {
+                dropdown.style.display = 'block';
+                matches.forEach(match => {
+                    const div = document.createElement('div');
+                    div.className = 'dropdown-item';
+                    div.textContent = match;
+                    div.onclick = function () {
+                        document.getElementById('severity-input').value = match;
+                        dropdown.style.display = 'none';
+                    };
+                    dropdown.appendChild(div);
+                });
+            } else {
+                dropdown.style.display = 'none';
+            }
+        }
+
+        function submitDate() {
+            const selectedDate = $("#datepicker").val();
+            if (!selectedDate) return;
+
+            updateSidebarField('basic_info', 'date', selectedDate);
+
+            $("#date-picker-widget").hide();
+            $("#user-input").prop('disabled', false);
+            sendMessage(selectedDate);
+        }
+
+        function submitTime() {
+            const timeVal = document.getElementById('timeInput').value;
+            if(!timeVal) return;
+            updateSidebarField('basic_info', 'time', timeVal);
+            document.getElementById('time-picker-widget').style.display = 'none';
+            $("#user-input").prop('disabled', false);
+            sendMessage(timeVal);
+        }
+
+        function submitPersonType() {
+            const selectedType = document.querySelector('input[name="person-type"]:checked');
+            if (!selectedType) return;
+            updateSidebarField('basic_info', 'person_type', selectedType.value);
+            $("#person-type-picker").hide();
+            $("#user-input").prop('disabled', false);
+            sendMessage(selectedType.value);
+        }
+
+        function submitSeverity() {
+            const radio   = document.querySelector('input[name="severity"]:checked');
+            const value   = radio ? radio.value
+                                : document.getElementById('severity-input').value.trim();
+
+            if (!value) return;        // 用户还没选/填任何东西
+
+            updateSidebarField('basic_info', 'severity', value);
+            $("#severity-picker").hide();
+            $("#user-input").prop('disabled', false);
+            sendMessage(value);
+        }
+
+        function appendMessage(message, isUser = false) {
+            const chatbox = document.getElementById('chatbox');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+
+            if (typeof message === 'object') {
+                if (message.extracted) {
+                    updateSidebarFromExtracted(message.extracted);
+
+                    let formattedMessage = "Here's what I understood:\n";
+                    formattedMessage += formatExtracted(message.extracted);
+                    messageDiv.innerText = formattedMessage;
+                } else {
+                    messageDiv.innerText = JSON.stringify(message);
+                }
+            } else {
+                messageDiv.innerText = String(message);
+            }
+
+            chatbox.appendChild(messageDiv);
+            // chatbox.scrollTop = chatbox.scrollHeight;
+
+            if (!isUser) {
+                let widget = null;
+                const messageStr = String(message);
+
+                const widgetContainer = document.createElement('div');
+                widgetContainer.className = 'widget-container';
+                $('.summary-buttons-inline').remove();
+
+                if (messageStr.includes("Hi, I'm your Safety Chatbot")) {
+                    const optionsContainer = document.createElement('div');
+                    optionsContainer.className = 'initial-options-container';
+                    optionsContainer.style.display = 'flex';
+                    optionsContainer.style.flexDirection = 'column';
+                    optionsContainer.style.gap = '10px';
+                    optionsContainer.style.margin = '10px 0';
+
+                    const options = [
+                        "Personal Injuries",
+                        "Near Miss",
+                        "Equipment Damage",
+                        "Report an incident"
+                    ];
+
+                    options.forEach(option => {
+                        const button = document.createElement('button');
+                        button.textContent = option;
+                        button.className = 'initial-option-button';
+                        button.onclick = () => handleInitialOption(option);
+                        button.style.padding = '10px';
+                        button.style.margin = '5px';
+                        button.style.borderRadius = '5px';
+                        button.style.border = '1px solid #ccc';
+                        button.style.cursor = 'pointer';
+                        optionsContainer.appendChild(button);
+                    });
+
+                    widget = optionsContainer;
+                }
+
+                if (messageStr.includes("Based on similar incidents") &&
+                    messageStr.includes("here are some suggested actions taken")) {
+                    
+                    // 创建一个容器来放推荐按钮
+                    const suggestionsContainer = document.createElement('div');
+                    suggestionsContainer.style.display = 'flex';
+                    suggestionsContainer.style.flexWrap = 'wrap';
+                    suggestionsContainer.style.gap = '10px';
+                    suggestionsContainer.style.marginTop = '10px';
+
+                    // 判断全局变量里是否有后端传来的 suggestions
+                    if (window.lastSuggestionsList && Array.isArray(window.lastSuggestionsList)) {
+                        window.lastSuggestionsList.forEach(action => {
+                            const btn = document.createElement('button');
+                            btn.textContent = action;
+                            btn.style.padding = '8px 12px';
+                            btn.style.borderRadius = '4px';
+                            btn.style.border = '1px solid #ccc';
+                            btn.style.cursor = 'pointer';
+
+                            btn.onclick = () => {
+                                const userInputField = document.getElementById('user-input');
+                                if (userInputField.value.trim()) {
+                                    userInputField.value += "; " + action;
+                                } else {
+                                    userInputField.value = action;
+                                }
+                                userInputField.focus();
+                            };
+                            suggestionsContainer.appendChild(btn);
+                        });
+                    }
+
+                    messageDiv.appendChild(suggestionsContainer);
+                }
+
+                if (messageStr.includes('Does this summary look correct?') ||
+                    messageStr.includes('Does everything look good now?')) {
+                    const summaryButtons = document.createElement('div');
+                    summaryButtons.className = 'summary-buttons-inline';
+                    summaryButtons.innerHTML = `
+                        <button onclick="handleSubmitReport()" class="btn-primary">Submit Report</button>
+                        <button onclick="summaryChoice('change something')" class="btn-secondary">Make Changes</button>
+                        <button onclick="summaryChoice('add more info')" class="btn-info">Add More Info</button>
+                    `;
+                    widget = summaryButtons;
+                }
+
+                if (messageStr.includes('select the date')) {
+                    widget = document.getElementById('date-picker-widget');
+                } else if (messageStr.toLowerCase().includes('select') && messageStr.toLowerCase().includes('severity')) {
+                    widget = document.getElementById('severity-picker').cloneNode(true);
+                    widget.style.display = 'block';
+                    const input = widget.querySelector('#severity-input');
+                    const dropdown = widget.querySelector('#severity-dropdown');
+                    input.value = '';
+                    input.addEventListener('input', function () {
+                        const value = this.value.toLowerCase();
+                        updateSeverityDropdownItems(value);
+                    });
+                    const dropdownArrow = widget.querySelector('.dropdown-arrow');
+                    dropdownArrow.onclick = function (e) {
+                        e.preventDefault();
+                        if (dropdown.style.display === 'block') {
+                            dropdown.style.display = 'none';
+                        } else {
+                            updateSeverityDropdownItems('');
+                            dropdown.style.display = 'block';
+                        }
+                    };
+                } else if (messageStr.includes('Employee or Contractor')) {
+                    widget = document.getElementById('person-type-picker');
+                } else if (messageStr.includes('Here\'s what I understood')) {
+                    widget = document.getElementById('confirm-buttons');
+                    $("#user-input").prop('disabled', false);
+                } else if (messageStr.includes('accident type') && messageStr.includes('select')) {
+                    widget = document.getElementById('accident-type-picker');
+                    document.getElementById('accident-type-input').value = '';
+                } else if (messageStr.includes('accident agent') && messageStr.includes('select')) {
+                    widget = document.getElementById('accident-agent-picker');
+                    document.getElementById('accident-agent-input').value = '';
+                } else if (messageStr.includes('injury type') && messageStr.includes('select')) {
+                    widget = document.getElementById('injury-type-picker');
+                    document.getElementById('injury-type-input').value = '';
+                } else if (messageStr.includes('injury agent') && messageStr.includes('select')) {
+                    widget = document.getElementById('injury-agent-picker');
+                    document.getElementById('injury-agent-input').value = '';
+                } else if (messageStr.includes('Does this summary look correct') ||
+                    messageStr.includes('Does everything look good now?')) {
+                    const summaryButtons = document.createElement('div');
+                    summaryButtons.className = 'summary-buttons-inline';
+                    summaryButtons.innerHTML = `
+                        <button onclick="handleSubmitReport()" class="btn-primary">Submit Report</button>
+                        <button onclick="summaryChoice('change something')" class="btn-secondary">Make Changes</button>
+                        <button onclick="summaryChoice('add more info')" class="btn-info">Add More Info</button>
+                    `;
+                    widget = summaryButtons;
+                }
+
+                if (widget) {
+                    widget.style.display = 'block';
+                    widgetContainer.appendChild(widget);
+                    messageDiv.appendChild(widgetContainer);
+                    chatbox.appendChild(widget);
+                    $("#user-input").prop('disabled', false);
+                }
+            }
+            chatbox.scrollTop = chatbox.scrollHeight;
+        }
+
+        function updateSidebarFromExtracted(extracted) {
+            if (extracted.basic_info) {
+                for (const [key, value] of Object.entries(extracted.basic_info)) {
+                    updateSidebarField('basic_info', key, value);
+                }
+            }
+
+            if (extracted.injury_data) {
+                for (const [key, value] of Object.entries(extracted.injury_data)) {
+                    updateSidebarField('injury_data', key, value);
+                }
+            }
+
+            if (extracted.near_miss_data) {
+                for (const [key, value] of Object.entries(extracted.near_miss_data)) {
+                    updateSidebarField('near_miss_data', key, value);
+                }
+            }
+        }
+
+        function updateSidebarField(section, field, value) {
+            if (field === 'reporter_name' || field === 'reporter_job') {
+                const fieldElement = document.getElementById(`field-${field}`);
+                if (fieldElement) {
+                    fieldElement.textContent = value || 'Missing';
+                }
+                return;
+            }
+            const fieldElement = document.getElementById(`field-${field}`);
+            if (fieldElement) {
+                fieldElement.textContent = value && value.trim() !== '' ? value : 'Missing';
+            }
+            /* Store value in the cache */
+            if (!window.currentData[section]) window.currentData[section] = {};
+            window.currentData[section][field] = value;
+        }
+
+        function formatExtracted(obj, indent = 0) {
+            let lines = [];
+            const prefix = ' '.repeat(indent);
+
+            // Get the incident type from the object
+            const incidentType = obj.basic_info?.incident_type;
+
+            for (const [k, v] of Object.entries(obj)) {
+                // Skip categories that don't apply to the current incident type
+                if (k !== 'basic_info') {
+                    if (incidentType === 'Personal Injuries' && k !== 'injury_data') continue;
+                    if (incidentType === 'Near Miss' && k !== 'near_miss_data') continue;
+                    if (incidentType === 'Equipment Damage' && k !== 'equipment_damage_data') continue;
+                }
+
+                if (typeof v === 'object' && v !== null) {
+                    // Make category names bold and add a colon
+                    lines.push(`${prefix}**${k}**:`);
+                    // Get the formatted content of the nested object
+                    const nestedContent = formatExtracted(v, indent + 4);
+                    // Add the nested content
+                    lines.push(nestedContent);
+                } else {
+                    // Add more indentation for fields
+                    lines.push(`${prefix}    ${k}: ${v || 'Not provided'}`);
+                }
+            }
+            return lines.join('\n');
+        }
+
+        function confirmChoice(choice) {
+            $("#confirm-buttons").hide();
+            $("#user-input").prop('disabled', false);
+            if (choice === 'yes') {
+                // 创建一个新的消息元素
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message bot-message';
+                messageDiv.innerText = "Does this summary look correct?";
+                
+                // 创建按钮容器
+                const summaryButtons = document.createElement('div');
+                summaryButtons.className = 'summary-buttons-inline';
+                summaryButtons.innerHTML = `
+                    <button onclick="handleSubmitReport()" class="btn-primary">Submit Report</button>
+                    <button onclick="summaryChoice('change something')" class="btn-secondary">Make Changes</button>
+                    <button onclick="summaryChoice('add more info')" class="btn-info">Add More Info</button>
+                `;
+                
+                // 添加按钮到消息
+                messageDiv.appendChild(summaryButtons);
+                
+                // 添加到聊天框
+                document.getElementById('chatbox').appendChild(messageDiv);
+                document.getElementById('chatbox').scrollTop = document.getElementById('chatbox').scrollHeight;
+            } else {
+                sendMessage(choice);
+            }
+        }
+
+        function sendMessage(customMessage = null) {
+            const message = customMessage || document.getElementById('user-input').value;
+            if (!message) return;
+
+            appendMessage(message, true);
+
+            if (!customMessage) {
+                document.getElementById('user-input').value = '';
+            }
+
+            const sessionId = getSessionId();
+            const chatbox = document.getElementById('chatbox');
+            const loadingDiv = document.createElement('div');
+            loadingDiv.className = 'message bot-message';
+            loadingDiv.id = 'loading-indicator';
+            loadingDiv.innerHTML = `
+                <div class="typing-indicator">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            `;
+            chatbox.appendChild(loadingDiv);
+
+            const userInput = document.getElementById('user-input');
+            const sendButton = document.querySelector('.input-container button');
+            userInput.disabled = false;
+            sendButton.disabled = false;
+
+            fetch(`/api/chat/?session_id=${sessionId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    message: message,
+                    current_data: window.currentData
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // If backend says to redirect, go there immediately
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                    return;
+                }
+                const loadingIndicator = document.getElementById('loading-indicator');
+                if (loadingIndicator) {
+                    loadingIndicator.remove();
+                }
+                userInput.disabled = false;
+                sendButton.disabled = false;
+
+                // Clear the cache after successful request
+                window.currentData = {};
+
+                if (data.response) {
+                    // 如果是提交成功的消息，直接显示，不需要显示确认按钮
+                    if (data.response.includes("successfully recorded")) {
+                        clearSession();
+                        const messageDiv = document.createElement('div');
+                        messageDiv.className = 'message bot-message';
+                        messageDiv.innerText = data.response;
+
+                        // 创建"Start New Report"按钮
+                        const buttonContainer = document.createElement('div');
+                        buttonContainer.className = 'widget-container';
+                        buttonContainer.style.display = 'block';
+                        buttonContainer.style.marginTop = '10px';
+                        
+                        const newReportButton = document.createElement('button');
+                        newReportButton.className = 'btn btn-primary';
+                        newReportButton.textContent = 'Start New Report';
+                        newReportButton.onclick = function() {
+                            window.location.reload();
+                        };
+                        
+                        buttonContainer.appendChild(newReportButton);
+                        messageDiv.appendChild(buttonContainer);
+                        $('#chatbox').append(messageDiv);
+                    } else if (data.response.includes("Does this summary look correct")) {
+                        // 如果是确认消息，显示带按钮的消息
+                        const messageDiv = document.createElement('div');
+                        messageDiv.className = 'message bot-message';
+                        messageDiv.innerText = data.response;
+                        
+                        const summaryButtons = document.createElement('div');
+                        summaryButtons.className = 'summary-buttons-inline';
+                        summaryButtons.innerHTML = `
+                            <button onclick="handleSubmitReport()" class="btn-primary">Submit Report</button>
+                            <button onclick="summaryChoice('change something')" class="btn-secondary">Make Changes</button>
+                            <button onclick="summaryChoice('add more info')" class="btn-info">Add More Info</button>
+                        `;
+                        
+                        messageDiv.appendChild(summaryButtons);
+                        $('#chatbox').append(messageDiv);
+                    }
+                    else if (data.response.includes("Based on similar incidents")) {
+    appendMessage(data.response);
+} 
+                    else {
+                        // 其他普通消息
+                        appendMessage(data.response);
+                    }
+                }
+
+                if (data.suggestions && Array.isArray(data.suggestions)) {
+                    window.lastSuggestionsList = data.suggestions;
+                } else {
+                    window.lastSuggestionsList = null;
+                }
+
+                // 如果是最终确认消息，不显示新的确认界面
+                if (message === 'confirm' && data.response && data.response.includes("Does this summary look correct")) {
+                    return;
+                }
+
+                if (data.extracted) {
+                    updateSidebarFromExtracted(data.extracted);
+                }
+
+                hideAllWidgets();
+
+
+                if (data.response && data.response.includes("Does this summary look correct")) {
+                    $("#summary-buttons").show();
+                    $("#user-input").prop('disabled', false);
+                }
+
+                if (data.extracted) {
+                    if (data.extracted.basic_info) {
+                        for (const [key, val] of Object.entries(data.extracted.basic_info)) {
+                            const fieldElement = document.getElementById(`field-${key}`);
+                            if (fieldElement) {
+                                fieldElement.textContent = val || 'Missing';
+                            }
+                        }
+                    }
+                    if (data.extracted.injury_data) {
+                        for (const [key, val] of Object.entries(data.extracted.injury_data)) {
+                            const fieldElement = document.getElementById(`field-${key}`);
+                            if (fieldElement) {
+                                fieldElement.textContent = val || 'Missing';
+                            }
+                        }
+                    }
+                    appendMessage({ extracted: data.extracted });
+                }
+
+                if (!data.show_widget) {
+                    userInput.focus();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                const loadingIndicator = document.getElementById('loading-indicator');
+                if (loadingIndicator) {
+                    loadingIndicator.remove();
+                }
+                userInput.disabled = false;
+                sendButton.disabled = false;
+                appendMessage('Sorry, something went wrong.');
+            });
+        }
+
+        function toggleVoiceInput() {
+            // This is just a placeholder for now
+            console.log('Voice input clicked');
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            sidebar.classList.toggle('collapsed');
+
+            const icon = document.getElementById('sidebar-toggle-icon');
+            if (sidebar.classList.contains('collapsed')) {
+                icon.src = '/static/css/images/icons/chevron_right.png';
+            } else {
+                icon.src = '/static/css/images/icons/chevron_left.png';
+            }
+        }
+
+        function submitPersonType() {
+            const selectedType = document.querySelector('input[name="person-type"]:checked');
+            if (!selectedType) return;
+
+            updateSidebarField('basic_info', 'person_type', selectedType.value);
+
+            $("#person-type-picker").hide();
+            $("#user-input").prop('disabled', false);
+            sendMessage(selectedType.value);
+        }
+
+        function updateFieldStatus(key, value) {
+            const fieldElement = document.getElementById(`field-${key}`);
+            if (fieldElement) {
+                fieldElement.textContent = value || 'Missing';
+            }
+        }
+
+        function toggleAccordion(sectionId) {
+        const content = document.getElementById(`${sectionId}-content`);
+        const header = content.previousElementSibling;
+        const icon  = header.querySelector('.accordion-icon');
+
+        const isOpen = content.classList.toggle('active');
+        header.classList.toggle('active', isOpen);
+
+        if (isOpen) {
+            icon.src = '/static/css/images/icons/expand_less.png';
+        } else {
+            icon.src = '/static/css/images/icons/expand_more.png';
+        }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // 移除这个重复的初始化调用
+            /*
+            fetch(`/api/chat/?session_id=${getSessionId()}`, {
+                method: 'GET'
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.response) {
+                        appendMessage(data.response);
+                    }
+                })
+            */
+
+            document.getElementById('injury-data-content').parentElement.style.display = 'none';
+            document.getElementById('near-miss-data-content').parentElement.style.display = 'none';
+
+            toggleAccordion('basic-info');
+            toggleAccordion('injury-data');
+            toggleAccordion('near-miss-data');
+
+            ['accident-type', 'accident-agent', 'injury-type', 'injury-agent', 'life-saving-rules'].forEach(fieldType => {
+                const input = document.getElementById(`${fieldType}-input`);
+                input.addEventListener('input', function () {
+                    updateFieldDropdownItems(fieldType, this.value);
+                });
+            });
+
+            document.addEventListener('click', function (e) {
+                ['accident-type', 'accident-agent', 'injury-type', 'injury-agent', 'life-saving-rules'].forEach(fieldType => {
+                    const input = document.getElementById(`${fieldType}-input`);
+                    const dropdown = document.getElementById(`${fieldType}-dropdown`);
+                    if (!input.contains(e.target) &&
+                        !dropdown.contains(e.target) &&
+                        !e.target.classList.contains('dropdown-arrow')) {
+                        dropdown.style.display = 'none';
+                    }
+                });
+            });
+
+            checkUnfinishedReport();
+        });
+
+
+        function toggleFieldDropdown(event, fieldType) {
+            event.preventDefault();
+            const dropdown = document.getElementById(`${fieldType}-dropdown`);
+            if (!dropdown) return;
+
+            if (dropdown.style.display === 'block') {
+                dropdown.style.display = 'none';
+            } else {
+                updateFieldDropdownItems(fieldType, '');
+                dropdown.style.display = 'block';
+            }
+        }
+
+        function updateFieldDropdownItems(fieldType, searchValue) {
+            const dropdown = document.getElementById(`${fieldType}-dropdown`);
+            if (!dropdown) return;
+
+            dropdown.innerHTML = '';
+            const options = fieldOptions[fieldType.replace(/-/g, '_')];
+            if (!options) {
+                console.log('No options found for fieldType:', fieldType);
+                return;
+            }
+
+            const matches = options.filter(option =>
+                !searchValue || option.toLowerCase().includes(searchValue.toLowerCase())
+            );
+
+            if (matches.length > 0) {
+                dropdown.style.display = 'block';
+                matches.forEach(match => {
+                    const div = document.createElement('div');
+                    div.className = 'dropdown-item';
+                    div.textContent = match;
+                    div.onclick = function () {
+                        document.getElementById(`${fieldType}-input`).value = match;
+                        dropdown.style.display = 'none';
+                    };
+                    dropdown.appendChild(div);
+                });
+            } else {
+                dropdown.style.display = 'none';
+            }
+        }
+
+        function submitAccidentType() {
+            const value = document.getElementById('accident-type-input').value;
+            if (!value) return;
+
+            updateSidebarField('injury_data', 'accident_type', value);
+
+            $("#accident-type-picker").hide();
+            $("#user-input").prop('disabled', false);
+            sendMessage(value);
+        }
+
+        function submitAccidentAgent() {
+            const value = document.getElementById('accident-agent-input').value;
+            if (!value) return;
+
+            updateSidebarField('injury_data', 'accident_agent', value);
+
+            $("#accident-agent-picker").hide();
+            $("#user-input").prop('disabled', false);
+            sendMessage(value);
+        }
+
+        function submitInjuryType() {
+            const value = document.getElementById('injury-type-input').value;
+            if (!value) return;
+            const fieldElement = document.getElementById('field-injury_type');
+            if (fieldElement) {
+                fieldElement.textContent = value;
+            }
+            updateSidebarField('injury_data', 'injury_type', value);
+            $("#injury-type-picker").hide();
+            $("#user-input").prop('disabled', false);
+            sendMessage(value);
+        }
+
+        function submitInjuryAgent() {
+            const value = document.getElementById('injury-agent-input').value;
+            if (!value) return;
+            const fieldElement = document.getElementById('field-injury_agent');
+            if (fieldElement) {
+                fieldElement.textContent = value;
+            }
+            $("#injury-agent-picker").hide();
+            $("#user-input").prop('disabled', false);
+            sendMessage(value);
+        }
+
+        function submitSifCase() {
+            const selectedCase = document.querySelector('input[name="sif-case"]:checked');
+            if (!selectedCase) return; // 用户未勾选任何一个时就不提交
+            const value = selectedCase.value;
+            $("#sif-case-picker").hide();
+            $("#user-input").prop('disabled', false);
+            sendMessage(value);
+        }
+
+        function submitNearMissSifCase() {
+            const selectedCase = document.querySelector('input[name="near-miss-sif-case"]:checked');
+            if (!selectedCase) return; // 用户未勾选任何一个时就不提交
+            const value = selectedCase.value;
+            $("#near-miss-sif-case-picker").hide();
+            $("#user-input").prop('disabled', false);
+            sendMessage(value);
+        }
+
+        function submitLifeSavingRules() {
+            const value = document.getElementById('life-saving-rules-input').value;
+            if (!value) return;
+            const fieldElement = document.getElementById('field-life_saving_rules');
+            if (fieldElement) {
+                fieldElement.textContent = value;
+            }
+            updateSidebarField('near_miss_data', 'life_saving_rules', value);
+            $("#life-saving-rules-picker").hide();
+            $("#user-input").prop('disabled', false);
+            sendMessage(value);
+        }
+
+        function handleSubmitReport() {
+            $(".summary-buttons-inline").hide();
+            $("#user-input").prop('disabled', false);  // 禁用输入框防止用户干扰
+            appendMessage("Submit Report", false);  // 记录用户选择
+
+            // 获取用户信息
+            const storedUserInfo = localStorage.getItem('reporter_info');
+            const userInfo = storedUserInfo ? JSON.parse(storedUserInfo) : {};
+
+            // 直接发送 yes 消息以触发提交，同时包含用户信息
+            fetch(`/api/chat/?session_id=${getSessionId()}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    message: 'yes',
+                    user_info: userInfo
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.response) {
+                    appendMessage(data.response);
+                    // === STEP 4.2: Trigger widgets based on LLM message content ===
+                    for (const field in FIELD_WIDGET_MAP) {
+                        const displayName = field.replaceAll("_", " ");
+                        if (data.response.toLowerCase().includes(displayName)) {
+                            const widgetId = FIELD_WIDGET_MAP[field];
+                            const widgetElement = document.getElementById(widgetId);
+                            if (widgetElement) {
+                                widgetElement.style.display = "block";
+                                break;
+                            }
+                        }
+                    }
+                }
+                $("#user-input").prop('disabled', false);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                appendMessage('Sorry, something went wrong while submitting the report.');
+                $("#user-input").prop('disabled', false);
+            });
+        }
+
+        function summaryChoice(choice) {
+            if (choice === 'add more info') {
+                $(".summary-buttons-inline").hide();
+                $("#additional-info").show();
+                $("#additional-info-input").val(''); // Clear any previous input
+                appendMessage("Add More Info", true);  // 记录用户选择
+            } else if (choice === 'change something') {
+                $(".summary-buttons-inline").hide();
+                $("#user-input").prop('disabled', false);
+                appendMessage("Make Changes", true);  // 记录用户选择
+                appendMessage("Try saying 'location to warehouse' or 'severity to critical' one thing at a time.");
+            } else if (choice === 'looks good') {
+                $(".summary-buttons-inline").hide();
+                $("#user-input").prop('disabled', false);  // 禁用输入框防止用户干扰
+                appendMessage("Submit Report", true);  // 记录用户选择
+                // 直接发送 yes 消息以触发提交
+                fetch(`/api/chat/?session_id=${getSessionId()}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: 'yes' })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.response) {
+                        appendMessage(data.response);
+                    }
+                    $("#user-input").prop('disabled', false);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    appendMessage('Sorry, something went wrong while submitting the report.');
+                    $("#user-input").prop('disabled', false);
+                });
+            }
+        }
+
+        function submitAdditionalInfo() {
+            const additionalInfo = document.getElementById('additional-info-input').value;
+            if (!additionalInfo.trim()) return;
+
+            $("#additional-info").hide();
+            $("#user-input").prop('disabled', false);
+            sendMessage('additional_comment: ' + additionalInfo);
+            document.getElementById('additional-info-input').value = '';
+        }
+
+        function submitConfirm(choice) {
+            $("#submit-confirm-buttons").hide();
+            $("#user-input").prop('disabled', false);
+            sendMessage(choice === 'yes' ? 'submit' : 'back');
+        }
+
+        function hideAllWidgets() {
+            const widgets = [
+                "date-picker-widget",
+                "time-picker-widget",
+                "severity-picker",
+                "person-type-picker",
+                "confirm-buttons",
+                "accident-type-picker",
+                "accident-agent-picker",
+                "injury-type-picker",
+                "injury-agent-picker",
+                "sif-case-picker",
+                "near-miss-sif-case-picker",
+                "life-saving-rules-picker",
+                "summary-buttons",
+                "additional-info",
+                "damage-amount-picker",
+                "activity-type-picker",
+                "incident-activity-picker",
+                "incident-agent-picker",
+                "submit-confirm-buttons"
+            ];
+
+            widgets.forEach(widget => {
+                $(`#${widget}`).hide();
+            });
+
+            $("#user-input").prop('disabled', false);
+        }
+
+        function getSessionId() {
+            let sessionId = localStorage.getItem('incident_report_session_id');
+            if (!sessionId) {
+                sessionId = new URLSearchParams(window.location.search).get('session_id');
+            }
+            if (!sessionId) {
+                sessionId = 'session_' + Date.now();
+            }
+            localStorage.setItem('incident_report_session_id', sessionId);
+            const currentUrl = new URL(window.location.href);
+            if (currentUrl.searchParams.get('session_id') !== sessionId) {
+                currentUrl.searchParams.set('session_id', sessionId);
+                window.history.replaceState({}, '', currentUrl);
+            }
+            return sessionId;
+        }
+
+        function clearSession() {
+            localStorage.removeItem('incident_report_session_id');
+        }
+
+        function checkUnfinishedReport() {
+            if (localStorage.getItem('skip_unfinished_prompt') === 'true') {
+                localStorage.removeItem('skip_unfinished_prompt');
+                return;          // 立刻退出，开始正常对话
+            }
+
+            const sessionId = getSessionId();
+
+            // First check if current user has an unfinished report
+            fetch(`/api/chat/?session_id=${sessionId}&check_unfinished=true`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.has_unfinished) {
+                        showUnfinishedReportDialog(data.unfinished_data);
+                    } else {
+                        // If current user has no unfinished report, show all unfinished reports
+                        fetch(`/api/chat/?list_unfinished=true`)
+                            .then(response => response.json())
+                            .then(data => {
+                                const reports = data.unfinished_reports;
+                                if (reports && reports.length > 0) {
+                                    const dialog = document.createElement('div');
+                                    dialog.className = 'unfinished-reports-dialog';
+                                    dialog.innerHTML = `
+                                        <div class="dialog-content">
+                                            <h3>Available Unfinished Reports</h3>
+                                            <div class="reports-list">
+                                                ${reports.map(report => `
+                                                    <div class="report-item">
+                                                        <div class="report-info">
+                                                            <p>Session ID: ${report.session_id.replace('session_', '')}</p>
+                                                            <p>Last Updated: ${new Date(report.last_updated).toLocaleString()}</p>
+                                                            <p>Step: ${report.report_data.step}</p>
+                                                            ${report.report_data.report && report.report_data.report.basic_info ? `
+                                                                <p>Location: ${report.report_data.report.basic_info.location || 'Not specified'}</p>
+                                                                <p>Incident Type: ${report.report_data.report.basic_info.incident_type || 'Not specified'}</p>
+                                                            ` : ''}
+                                                        </div>
+                                                        <button onclick="resumeReport('${report.session_id}')" class="btn btn-primary">Resume</button>
+                                                        <button onclick="promptAdminLogin('${report.session_id}')" class="btn btn-danger">Remove</button>
+                                                    </div>
+                                                `).join('')}
+                                            </div>
+                                            <div class="dialog-buttons">
+                                                <button onclick="closeUnfinishedReportsDialog()" class="btn btn-secondary">Close</button>
+                                                <button onclick="startNewReport()" class="btn btn-primary">Start New Report</button>
+                                            </div>
+                                        </div>
+                                    `;
+                                    document.body.appendChild(dialog);
+                                }
+                            });
+                    }
+                })
+                .catch(error => console.error('Error checking unfinished report:', error));
+        }
+
+        function startNewReport() {
+            // 1. 关弹窗
+            closeUnfinishedReportsDialog();
+
+            // 2. 生成全新 session
+            clearSession();
+            const newSession = getSessionId();
+
+            // 3. 删除未完成的报告
+            fetch(`/api/chat/?session_id=${newSession}&handle_unfinished=true`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ continue: false })  // 告诉后端删除未完成的报告
+            })
+            .then(() => {
+                // 4. 清空聊天框和侧边栏
+                document.getElementById('chatbox').innerHTML = '';
+                document.querySelectorAll('[id^="field-"]').forEach(span => span.textContent = 'Missing');
+
+                // 5. 告诉 checkUnfinishedReport() 这次不要再弹窗
+                localStorage.setItem('skip_unfinished_prompt', 'true');
+
+                // 6. 拉取新的欢迎语
+                fetch(`/api/chat/?session_id=${newSession}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.response) appendMessage(data.response);
+                    });
+
+                // 7. 激活输入框
+                const input = document.getElementById('user-input');
+                input.disabled = false;
+                input.focus();
+            });
+        }
+
+        function showUnfinishedReportDialog(unfinishedData) {
+            const dialog = document.createElement('div');
+            dialog.className = 'unfinished-dialog';
+            dialog.innerHTML = `
+                <div class="dialog-content">
+                    <h3>Unfinished Report</h3>
+                    <p>We found an unfinished incident report. Would you like to continue?</p>
+                    <div class="dialog-buttons">
+                        <button onclick="handleUnfinishedReport(true)" class="btn btn-primary">Continue</button>
+                        <button onclick="handleUnfinishedReport(false)" class="btn btn-secondary">Start New Report</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(dialog);
+
+            // 阻止对话框以外的点击事件
+            dialog.addEventListener('click', function(e) {
+                if (e.target === dialog) {
+                    e.stopPropagation();
+                }
+            });
+        }
+
+        function handleUnfinishedReport(continueReport) {
+            const sessionId = getSessionId();
+
+            fetch(`/api/chat/?session_id=${sessionId}&handle_unfinished=true`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ continue: continueReport })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    document.querySelector('.unfinished-dialog').remove();
+
+                    if (!continueReport) {
+                        clearSession();
+                        window.location.reload();
+                        return;
+                    }
+
+                    if (data.restored_data) {
+                        document.getElementById('chatbox').innerHTML = '';
+
+                        if (data.restored_data.chatHistory) {
+                            data.restored_data.chatHistory.forEach(message => {
+                                appendMessage(message.content, message.isUser);
+                            });
+                        }
+
+                        if (data.restored_data.report) {
+                            updateSidebarFromExtracted(data.restored_data.report);
+                            
+                            // 处理 incident type 相关的 UI 更新
+                            const incidentType = data.restored_data.report.basic_info?.incident_type;
+                            if (incidentType) {
+                                // 更新左侧边栏的 incident type 显示
+                                const old = document.getElementById('sidebar-selected-option');
+                                if (old) old.remove();
+
+                                const sidebar = document.querySelector('.sidebar');
+                                const selectedDiv = document.createElement('div');
+                                selectedDiv.id = 'sidebar-selected-option';
+                                selectedDiv.style.color = '#ecf0f1';
+                                selectedDiv.style.padding = '8px 12px';
+                                selectedDiv.style.margin = '10px 0';
+                                selectedDiv.style.backgroundColor = '#34495e';
+                                selectedDiv.style.borderRadius = '4px';
+                                selectedDiv.innerHTML = `<strong>Incident Type:</strong> ${incidentType}`;
+                                const title = sidebar.querySelector('h3');
+                                sidebar.insertBefore(selectedDiv, title.nextSibling);
+
+                                // 显示/隐藏相应的数据部分
+                                const injurySection = document.getElementById('injury-data-content').parentElement;
+                                const nearMissSection = document.getElementById('near-miss-data-content').parentElement;
+                                const equipmentDamageSection = document.getElementById('equipment-damage-data-content').parentElement;
+
+                                // 重置所有部分的显示状态
+                                injurySection.style.display = 'none';
+                                nearMissSection.style.display = 'none';
+                                equipmentDamageSection.style.display = 'none';
+
+                                // 根据 incident type 显示相应部分
+                                if (incidentType === 'Personal Injuries') {
+                                    injurySection.style.display = '';
+                                } else if (incidentType === 'Near Miss') {
+                                    nearMissSection.style.display = '';
+                                } else if (incidentType === 'Equipment Damage') {
+                                    equipmentDamageSection.style.display = '';
+                                }
+
+                                // 移除初始选项按钮（如果存在）
+                                const initialOptionsContainer = document.querySelector('.initial-options-container');
+                                if (initialOptionsContainer) {
+                                    initialOptionsContainer.remove();
+                                }
+                            }
+                        }
+
+                        hideAllWidgets();
+                        
+                        // 显示欢迎回来的消息
+                        appendMessage(data.response);
+                        
+                        // 如果有下一个问题，显示它
+                        if (data.next_question) {
+                            appendMessage(data.next_question);
+                        }
+                        
+                        // 如果有对应的widget，显示它
+                        if (data.show_widget) {
+                            $(`#${data.show_widget}`).show();
+                            $("#user-input").prop('disabled', false);
+                        }
+                    } else {
+                        appendMessage(data.response);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error handling unfinished report:', error);
+                    document.querySelector('.unfinished-dialog').remove();
+                });
+        }
+
+        function handleInitialOption(choice) {
+            fetch(`/api/chat/?session_id=${getSessionId()}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ button_choice: choice })
+            })
+            .then(res => res.json())
+            .then(data => {
+                appendMessage(choice, true);
+                if (data.response) appendMessage(data.response);
+
+                document.querySelector('.initial-options-container').style.display = 'none';
+
+                const displayValue = choice === 'Report an incident' ? 'N/A' : choice;
+
+                const old = document.getElementById('sidebar-selected-option');
+                if (old) old.remove();
+
+                const sidebar = document.querySelector('.sidebar');
+                const selectedDiv = document.createElement('div');
+                selectedDiv.id = 'sidebar-selected-option';
+                selectedDiv.style.color = '#ecf0f1';
+                selectedDiv.style.padding = '8px 12px';
+                selectedDiv.style.margin = '10px 0';
+                selectedDiv.style.backgroundColor = '#34495e';
+                selectedDiv.style.borderRadius = '4px';
+                selectedDiv.innerHTML = `<strong>Incident Type:</strong> ${displayValue}`;
+                const title = sidebar.querySelector('h3');
+                sidebar.insertBefore(selectedDiv, title.nextSibling);
+
+                const injurySection = document.getElementById('injury-data-content').parentElement;
+                const nearMissSection = document.getElementById('near-miss-data-content').parentElement;
+                const equipmentDamageSection = document.getElementById('equipment-damage-data-content').parentElement;
+
+                if (choice === 'Personal Injuries') {
+                    injurySection.style.display = '';         
+                    nearMissSection.style.display = 'none';    
+                    equipmentDamageSection.style.display = 'none';
+                } else if (choice === 'Near Miss') {
+                    injurySection.style.display = 'none';
+                    nearMissSection.style.display = '';
+                    equipmentDamageSection.style.display = 'none';
+                } else if (choice === 'Equipment Damage') {
+                    injurySection.style.display = 'none';
+                    nearMissSection.style.display = 'none';
+                    equipmentDamageSection.style.display = '';
+                } else {
+                    injurySection.style.display = 'none';
+                    nearMissSection.style.display = 'none';
+                    equipmentDamageSection.style.display = 'none';
+                }
+
+                updateSidebarField('basic_info', 'incident_type', displayValue);
+
+                $("#user-input").prop('disabled', false).focus();
+            })
+            .catch(console.error);
+        }
+
+
+        function createInitialOptions(options) {
+            const container = document.createElement('div');
+            container.className = 'initial-options-container';
+            container.style.display = 'flex';
+            container.style.flexDirection = 'column';
+            container.style.gap = '10px';
+            container.style.margin = '10px 0';
+
+            options.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.className = 'initial-option-button';
+                button.onclick = () => handleInitialOption(option);
+                button.style.padding = '10px';
+                button.style.margin = '5px';
+                button.style.borderRadius = '5px';
+                button.style.border = '1px solid #ccc';
+                button.style.cursor = 'pointer';
+                container.appendChild(button);
+            });
+
+            return container;
+        }
+
+        function showUnfinishedReportsDialog() {
+            fetch(`/api/chat/?list_unfinished=true`)
+                .then(response => response.json())
+                .then(data => {
+                    const reports = data.unfinished_reports;
+                    if (reports.length === 0) {
+                        alert('No unfinished reports found.');
+                        return;
+                    }
+
+                    const dialog = document.createElement('div');
+                    dialog.className = 'unfinished-reports-dialog';
+                    dialog.innerHTML = `
+                        <div class="dialog-content">
+                            <h3>Other Unfinished Reports</h3>
+                            <div class="reports-list">
+                                ${reports.map(report => `
+                                    <div class="report-item">
+                                        <div class="report-info">
+                                            <p>Session ID: ${report.session_id.replace('session_', '')}</p>
+                                            <p>Last Updated: ${new Date(report.last_updated).toLocaleString()}</p>
+                                            <p>Step: ${report.report_data.step}</p>
+                                            ${report.report_data.report && report.report_data.report.basic_info ? `
+                                                <p>Location: ${report.report_data.report.basic_info.location || 'Not specified'}</p>
+                                                <p>Incident Type: ${report.report_data.report.basic_info.incident_type || 'Not specified'}</p>
+                                            ` : ''}
+                                        </div>
+                                        <button onclick="resumeReport('${report.session_id}')" class="btn btn-primary">Resume</button>
+                                        <button onclick="promptAdminLogin('${report.session_id}')" class="btn btn-danger">Remove</button>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div class="dialog-buttons">
+                                <button onclick="closeUnfinishedReportsDialog()" class="btn btn-secondary">Close</button>
+                            </div>
+                        </div>
+                    `;
+                    document.body.appendChild(dialog);
+                })
+                .catch(error => {
+                    console.error('Error fetching unfinished reports:', error);
+                    alert('Error loading unfinished reports.');
+                });
+        }
+
+        function closeUnfinishedReportsDialog() {
+            const dialog = document.querySelector('.unfinished-reports-dialog');
+            if (dialog) {
+                dialog.remove();
+            }
+        }
+
+        function resumeReport(sessionId) {
+            fetch(`/api/chat/?resume_report=true`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ session_id: sessionId })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+                closeUnfinishedReportsDialog();
+                
+                // 更新当前会话 ID
+                localStorage.setItem('incident_report_session_id', sessionId);
+                const currentUrl = new URL(window.location.href);
+                currentUrl.searchParams.set('session_id', sessionId);
+                window.history.replaceState({}, '', currentUrl);
+                
+                // Clear current chat
+                document.getElementById('chatbox').innerHTML = '';
+                
+                // Restore chat history
+                if (data.restored_data.chatHistory) {
+                    data.restored_data.chatHistory.forEach(message => {
+                        appendMessage(message.content, message.isUser);
+                    });
+                }
+                
+                // Update sidebar with restored data
+                if (data.restored_data.report) {
+                    updateSidebarFromExtracted(data.restored_data.report);
+                    
+                    // 处理 incident type 相关的 UI 更新
+                    const incidentType = data.restored_data.report.basic_info?.incident_type;
+                    if (incidentType) {
+                        // 更新左侧边栏的 incident type 显示
+                        const old = document.getElementById('sidebar-selected-option');
+                        if (old) old.remove();
+
+                        const sidebar = document.querySelector('.sidebar');
+                        const selectedDiv = document.createElement('div');
+                        selectedDiv.id = 'sidebar-selected-option';
+                        selectedDiv.style.color = '#ecf0f1';
+                        selectedDiv.style.padding = '8px 12px';
+                        selectedDiv.style.margin = '10px 0';
+                        selectedDiv.style.backgroundColor = '#34495e';
+                        selectedDiv.style.borderRadius = '4px';
+                        selectedDiv.innerHTML = `<strong>Incident Type:</strong> ${incidentType}`;
+                        const title = sidebar.querySelector('h3');
+                        sidebar.insertBefore(selectedDiv, title.nextSibling);
+
+                        // 显示/隐藏相应的数据部分
+                        const injurySection = document.getElementById('injury-data-content').parentElement;
+                        const nearMissSection = document.getElementById('near-miss-data-content').parentElement;
+                        const equipmentDamageSection = document.getElementById('equipment-damage-data-content').parentElement;
+
+                        // 重置所有部分的显示状态
+                        injurySection.style.display = 'none';
+                        nearMissSection.style.display = 'none';
+                        equipmentDamageSection.style.display = 'none';
+
+                        // 根据 incident type 显示相应部分
+                        if (incidentType === 'Personal Injuries') {
+                            injurySection.style.display = '';
+                        } else if (incidentType === 'Near Miss') {
+                            nearMissSection.style.display = '';
+                        } else if (incidentType === 'Equipment Damage') {
+                            equipmentDamageSection.style.display = '';
+                        }
+                    }
+                }
+                
+                // 显示欢迎回来的消息
+                appendMessage(data.response);
+                
+                // 如果有下一个问题，显示它
+                if (data.next_question) {
+                    appendMessage(data.next_question);
+                }
+                
+                // 如果有对应的widget，显示它
+                hideAllWidgets();
+                if (data.show_widget) {
+                    $(`#${data.show_widget}`).show();
+                    $("#user-input").prop('disabled', false);
+                } else {
+                    // 如果没有widget，启用输入框并聚焦
+                    $("#user-input").prop('disabled', false).focus();
+                }
+            })
+            .catch(error => {
+                console.error('Error resuming report:', error);
+                alert('Error resuming the report.');
+            });
+        }
+
+        // 1) 弹出 admin 登录框
+        function promptAdminLogin(sessionId) {
+            const dlg = document.createElement('div');
+            dlg.className = 'admin-login-dialog';
+            dlg.innerHTML = `
+                <div class="dialog-content">
+                <h3>Admin Login</h3>
+                <input id="admin-user" type="text" placeholder="Username" style="width:100%;margin:8px 0;padding:8px;">
+                <input id="admin-pass" type="password" placeholder="Password" style="width:100%;margin:8px 0;padding:8px;">
+                <div class="dialog-buttons" style="text-align:right;">
+                    <button onclick="closeAdminLogin()" class="btn btn-secondary">Cancel</button>
+                    <button onclick="doAdminRemove('${sessionId}')" class="btn btn-primary">Login & Remove</button>
+                </div>
+                </div>`;
+            document.body.appendChild(dlg);
+        }
+
+        function closeAdminLogin() {
+            const dlg = document.querySelector('.admin-login-dialog');
+            if (dlg) dlg.remove();
+        }
+
+        function doAdminRemove(sessionId) {
+            const username = document.getElementById('admin-user').value;
+            const password = document.getElementById('admin-pass').value;
+            fetch(`/api/chat/?remove_report=true`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ session_id: sessionId, username, password })
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Report removed');
+                    closeAdminLogin();
+                    
+                    // Find and remove the report item from the dialog
+                    const reportItems = document.querySelectorAll('.report-item');
+                    reportItems.forEach(item => {
+                        // Check if this item contains the session ID we want to remove
+                        const sessionIdText = item.querySelector('.report-info p:first-child').textContent;
+                        if (sessionIdText.includes(sessionId.replace('session_', ''))) {
+                            item.remove();
+                        }
+                    });
+                    
+                    // Check if there are any reports left
+                    const reportsList = document.querySelector('.reports-list');
+                    if (reportsList && reportsList.children.length === 0) {
+                        // If no reports left, close the dialog
+                        closeUnfinishedReportsDialog();
+                    }
+                } else {
+                    alert(data.error || 'Authentication failed');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Error removing report');
+            });
+        }
+
+
+        // Add event listener for the new button
+        document.addEventListener('DOMContentLoaded', function() {
+            const showUnfinishedBtn = document.getElementById('show-unfinished-reports');
+            if (showUnfinishedBtn) {
+                showUnfinishedBtn.addEventListener('click', showUnfinishedReportsDialog);
+            }
+        });
+
+        // Add Equipment Damage submit functions
+        function submitDamageAmount() {
+            const value = document.getElementById('damage-amount-input').value;
+            if (!value) return;
+            updateSidebarField('equipment_damage_data', 'damage_amount', value);
+            $("#damage-amount-picker").hide();
+            $("#user-input").prop('disabled', false);
+            sendMessage(value);
+        }
+
+        function submitActivityType() {
+            const value = document.getElementById('activity-type-input').value;
+            if (!value) return;
+            updateSidebarField('equipment_damage_data', 'activity_type', value);
+            $("#activity-type-picker").hide();
+            $("#user-input").prop('disabled', false);
+            sendMessage(value);
+        }
+
+        function submitIncidentActivity() {
+            const value = document.getElementById('incident-activity-input').value;
+            if (!value) return;
+            updateSidebarField('equipment_damage_data', 'incident_activity', value);
+            $("#incident-activity-picker").hide();
+            $("#user-input").prop('disabled', false);
+            sendMessage(value);
+        }
+
+        function submitEquipmentIncidentAgent() {
+            const value = document.getElementById('equipment-incident-agent-input').value;
+            if (!value) return;
+            updateSidebarField('equipment_damage_data', 'incident_agent', value);
+            $("#equipment-incident-agent-picker").hide();
+            $("#user-input").prop('disabled', false);
+            sendMessage(value);
+        }
+
+        function closeAdditionalInfo() {
+            $("#additional-info").hide();
+            $("#user-input").prop('disabled', false);
+            
+            // 创建一个新的消息元素
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message bot-message';
+            messageDiv.innerText = "Does this summary look correct?";
+            
+            // 创建按钮容器
+            const summaryButtons = document.createElement('div');
+            summaryButtons.className = 'summary-buttons-inline';
+            summaryButtons.innerHTML = `
+                <button onclick="handleSubmitReport()" class="btn-primary">Submit Report</button>
+                <button onclick="summaryChoice('change something')" class="btn-secondary">Make Changes</button>
+                <button onclick="summaryChoice('add more info')" class="btn-info">Add More Info</button>
+            `;
+            
+            // 添加按钮到消息
+            messageDiv.appendChild(summaryButtons);
+            
+            // 添加到聊天框
+            document.getElementById('chatbox').appendChild(messageDiv);
+            document.getElementById('chatbox').scrollTop = document.getElementById('chatbox').scrollHeight;
+        }
+
+        function deleteFile(fileId) {
+            if (confirm('Are you sure you want to delete this file?')) {
+                fetch(`/delete_file/?session_id=${getSessionId()}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        file_id: fileId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remove the file element from the UI
+                        const fileElement = document.querySelector(`[data-file-id="${fileId}"]`);
+                        if (fileElement) {
+                            fileElement.remove();
+                        }
+                        appendMessage('File deleted successfully', true);
+                    } else {
+                        appendMessage('Error deleting file: ' + data.error, true);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    appendMessage('Error deleting file', true);
+                });
+            }
+        }
+
+        // Add these new functions for user info handling
+        function submitUserInfo() {
+            const name = document.getElementById('reporter-name-input').value.trim();
+            const job = document.getElementById('reporter-job-input').value.trim();
+            
+            if (!name || !job) {
+                alert('Please provide both name and job title');
+                return;
+            }
+
+            const userInfo = {
+                name: name,
+                job: job
+            };
+
+            $("#user-info-widget").hide();
+            $("#user-input").prop('disabled', false);
+            sendMessage(JSON.stringify(userInfo));
+
+            // Update sidebar
+            document.getElementById('field-reporter_name').textContent = name;
+            document.getElementById('field-reporter_job').textContent = job;
+
+            // Store in localStorage for persistence
+            localStorage.setItem('reporter_info', JSON.stringify(userInfo));
+        }
+
+        function editUserInfo() {
+            const nameInput = document.getElementById('reporter-name-input');
+            const jobInput = document.getElementById('reporter-job-input');
+            
+            // Pre-fill with current values
+            nameInput.value = document.getElementById('field-reporter_name').textContent;
+            jobInput.value = document.getElementById('field-reporter_job').textContent;
+            
+            $("#user-info-widget").show();
+            $("#user-input").prop('disabled', false);
+        }
+
+    </script>
+</body>
+
+</html>

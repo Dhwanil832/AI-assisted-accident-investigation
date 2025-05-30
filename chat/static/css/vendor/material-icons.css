@@ -1,0 +1,39 @@
+/* chat/static/css/vendor/material-icons.css */
+
+/* 1) Define the font via @font-face, pointing to your local files */
+@font-face {
+  font-family: 'Material Icons';
+  font-style: normal;
+  font-weight: 400;
+
+  /* For IE6–8 compatibility */
+  src: url('/static/fonts/material-icons/MaterialIcons-Regular.eot');
+
+  /* Preferred: WOFF2, then WOFF, then TTF, with local fallbacks */
+  src: local('Material Icons'),
+       local('MaterialIcons-Regular'),
+       url('/static/fonts/material-icons/MaterialIcons-Regular.woff2') format('woff2'),
+       url('/static/fonts/material-icons/MaterialIcons-Regular.woff')  format('woff'),
+       url('/static/fonts/material-icons/MaterialIcons-Regular.ttf')   format('truetype');
+}
+
+/* 2) Apply the font to the .material-icons class */
+.material-icons {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;          /* Preferred icon size */
+  display: inline-block;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  white-space: nowrap;
+  direction: ltr;
+
+  /* Enable ligatures */
+  -webkit-font-smoothing: antialiased;  /* Safari, Chrome */
+  text-rendering: optimizeLegibility;   /* Safari, Chrome */
+  -moz-osx-font-smoothing: grayscale;   /* Firefox */
+  font-feature-settings: 'liga';        /* Standard */
+}

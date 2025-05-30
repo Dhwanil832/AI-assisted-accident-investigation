@@ -1,0 +1,46 @@
+<h2>Admin Dashboard</h2>
+<a href="{% url 'register_user' %}">Create New User</a>
+
+{% for item in user_data %}
+<h3>{{ item.user.username }} ({{ item.user.role }})</h3>
+
+<strong>Flagged Reports:</strong>
+<ul>
+  {% for report in item.flagged %}
+    <li style="background-color: #ffe5e5; border-left: 5px solid red; padding: 6px; margin-bottom: 4px;">
+      <strong>Report ID:</strong> {{ report.id }} |
+      <strong>Date:</strong> {{ report.created_at|default:"?" }} |
+      <strong>Reason:</strong> {{ report.flag_reason|default:"Multiple skipped fields" }}
+    </li>
+  {% empty %}
+    <li>No flagged reports</li>
+  {% endfor %}
+</ul>
+
+
+  <strong>Unfinished Reports:</strong>
+  <ul>
+    {% for report in item.unfinished %}
+      <li>
+        {{ report.session_id }} —
+        
+        <!-- Resume Button -->
+        <form action="{% url 'chatbot_ui' %}?resume_report=true" method="POST" style="display:inline;">
+          {% csrf_token %}
+          <input type="hidden" name="session_id" value="{{ report.session_id }}">
+          <button type="submit" style="background:none; border:none; color:blue; cursor:pointer;">Resume</button>
+        </form>
+
+        |
+
+        <!-- Delete Button -->
+        <form action="{% url 'delete_unfinished_report' report.session_id %}" method="POST" style="display:inline;">
+          {% csrf_token %}
+          <button type="submit" style="background:none; border:none; color:red; cursor:pointer;">Delete</button>
+        </form>
+      </li>
+    {% empty %}
+      <li>None</li>
+    {% endfor %}
+  </ul>
+{% endfor %}

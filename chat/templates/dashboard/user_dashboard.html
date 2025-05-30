@@ -1,0 +1,44 @@
+<!-- templates/dashboard/user_dashboard.html -->
+
+<h2>Welcome, {{ request.user.get_full_name }}</h2>
+
+<a href="{% url 'chat_ui' %}">Start New Report</a>
+
+<h3>Unfinished Reports</h3>
+<ul>
+  {% for report in unfinished_reports %}
+    <li>
+      {{ report.title }} —
+
+      <!-- Resume Button -->
+      <form action="{% url 'chatbot_ui' %}?resume_report=true" method="POST" style="display:inline;">
+        {% csrf_token %}
+        <input type="hidden" name="session_id" value="{{ report.session_id }}">
+        <button type="submit" style="background:none; border:none; color:blue; cursor:pointer;">Resume</button>
+      </form>
+
+      |
+
+      <!-- Delete Button -->
+      <form action="{% url 'delete_unfinished_report' report.session_id %}" method="POST" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" style="background:none; border:none; color:red; cursor:pointer;">Delete</button>
+      </form>
+    </li>
+  {% empty %}
+    <li>No unfinished reports</li>
+  {% endfor %}
+</ul>
+
+
+<h3>Completed Reports</h3>
+<ul>
+  {% for report in completed_reports %}
+    <li>{{ report.title }}</li>
+  {% empty %}
+    <li>No completed reports</li>
+  {% endfor %}
+</ul>
+<a href="{% url 'resume_report' report.session_id %}">Resume</a> |
+<a href="{% url 'delete_report' report.session_id %}">Delete</a>
+
