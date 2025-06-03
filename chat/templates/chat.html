@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Workplace Safety Chatbot</title>
-  <link rel="stylesheet" href="/static/css/style.css">
-  <link rel="stylesheet" href="/static/css/vendor/jquery-ui.css">
-  <link rel="stylesheet" href="/static/css/vendor/material-icons.css">
-  <script src="/static/js/vendor/jquery-3.6.0.min.js"></script>
-  <script src="/static/js/vendor/jquery-ui.min.js"></script>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-  <style>
+<head>
+    <meta charset="UTF-8">
+    <title>Workplace Safety Chatbot</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/vendor/jquery-ui.css">
+    <link rel="stylesheet" href="/static/css/vendor/material-icons.css">
+    <script src="/static/js/vendor/jquery-3.6.0.min.js"></script>
+    <script src="/static/js/vendor/jquery-ui.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <style>
         .container {
             display: flex;
             width: 100%;
@@ -27,11 +28,15 @@
             transition: width 0.3s ease;
             position: relative;
             overflow-x: hidden;
-            overflow-y: auto; /* Add vertical scrolling */
+            overflow-y: auto;
+            /* Add vertical scrolling */
             flex-shrink: 0;
-            max-height: 100vh; /* Ensure sidebar doesn't exceed viewport height */
-            scrollbar-width: thin; /* For Firefox */
-            scrollbar-color: #34495e #2c3e50; /* For Firefox */
+            max-height: 100vh;
+            /* Ensure sidebar doesn't exceed viewport height */
+            scrollbar-width: thin;
+            /* For Firefox */
+            scrollbar-color: #34495e #2c3e50;
+            /* For Firefox */
         }
 
         /* Custom scrollbar styling for Webkit browsers (Chrome, Safari, etc.) */
@@ -398,8 +403,10 @@
         }
 
         .accordion-content.active {
-            max-height: none !important;   /* 去掉 500px 封顶 */
-            overflow: visible !important;  /* 允许内容溢出 */
+            max-height: none !important;
+            /* 去掉 500px 封顶 */
+            overflow: visible !important;
+            /* 允许内容溢出 */
             padding: 10px;
         }
 
@@ -550,8 +557,10 @@
                 height: 100%;
                 z-index: 9999;
                 transform: translateX(-100%);
-                overflow-y: auto; /* Ensure scrolling works on mobile */
-                -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+                overflow-y: auto;
+                /* Ensure scrolling works on mobile */
+                -webkit-overflow-scrolling: touch;
+                /* Smooth scrolling on iOS */
             }
 
             .sidebar:not(.collapsed) {
@@ -735,43 +744,79 @@
         }
 
         .admin-login-dialog {
-        position: fixed;
-        top:0; left:0; right:0; bottom:0;
-        background: rgba(0,0,0,0.5);
-        display:flex; align-items:center; justify-content:center;
-        z-index:10000;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
         }
+
         .admin-login-dialog .dialog-content {
-        background:white; padding:20px; border-radius:6px;
-        width:300px; box-shadow:0 2px 10px rgba(0,0,0,.2);
+            background: white;
+            padding: 20px;
+            border-radius: 6px;
+            width: 300px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, .2);
         }
-        .btn-danger { background:#dc3545; color:white; border:none; padding:8px 12px; border-radius:4px; cursor:pointer; }
-        .btn-danger:hover { opacity:0.9; }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-danger:hover {
+            opacity: 0.9;
+        }
 
         /* ---------- typing (three-dot) animation ---------- */
-        .typing-indicator{
-            display:flex;
-            align-items:center;
-            height:16px;               /* 与文字行高接近即可 */
-            gap:4px;                   /* 点与点的间距 */
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            height: 16px;
+            /* 与文字行高接近即可 */
+            gap: 4px;
+            /* 点与点的间距 */
         }
 
-        .typing-indicator span{
-            width:6px;
-            height:6px;
-            border-radius:50%;
-            background:#999;           /* 根据主题调色 */
-            opacity:0;
-            animation:typingBlink 1.2s infinite ease-in-out;
+        .typing-indicator span {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #999;
+            /* 根据主题调色 */
+            opacity: 0;
+            animation: typingBlink 1.2s infinite ease-in-out;
         }
 
         /* 依次错位，形成循环效果 */
-        .typing-indicator span:nth-child(2){animation-delay:0.2s;}
-        .typing-indicator span:nth-child(3){animation-delay:0.4s;}
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
 
-        @keyframes typingBlink{
-            0%,80%,100%{opacity:0;}
-            40%       {opacity:1;}
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typingBlink {
+
+            0%,
+            80%,
+            100% {
+                opacity: 0;
+            }
+
+            40% {
+                opacity: 1;
+            }
         }
 
         .action-btn {
@@ -964,79 +1009,71 @@
         #user-info-widget input:focus {
             border-color: #007bff;
             outline: none;
-            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+            box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
         }
     </style>
 </head>
 
 <body>
     <div class="container">
-      <!-- toggle button -->
-      <button class="toggle-sidebar" onclick="toggleSidebar()">
-        <img id="sidebar-toggle-icon"
-             src="/static/css/images/icons/chevron_left.png"
-             alt="Toggle sidebar"
-             class="icon">
-      </button>
-  
-      <div class="sidebar">
-        <h3>Incident Report</h3>
+        <!-- toggle button -->
+        <button class="toggle-sidebar" onclick="toggleSidebar()">
+            <img id="sidebar-toggle-icon" src="/static/css/images/icons/chevron_left.png" alt="Toggle sidebar"
+                class="icon">
+        </button>
+
+        <div class="sidebar">
+            <h3>Incident Report</h3>
 
             <!-- Reporter Information Section -->
-      <div class="accordion-section">
-        <div class="accordion-header" onclick="toggleAccordion('reporter-info')">
-          <span>Reporter Information</span>
-          <img src="/static/css/images/icons/expand_more.png"
-               alt="expand_more"
-               class="accordion-icon">
-        </div>
-        <div class="accordion-content" id="reporter-info-content">
-          <ul id="reporter-info-status">
-            <li>
-              <strong>Reporter:</strong>
-              <span id="field-reporter_name">Missing</span>
-              <button onclick="editUserInfo()" class="edit-btn" title="Edit reporter info">
-                <img src="/static/css/images/icons/edit.png"
-                     alt="edit"
-                     style="width:16px;height:16px;">
-              </button>
-            </li>
-            <li>
-              <strong>Job Title:</strong>
-              <span id="field-reporter_job">Missing</span>
-            </li>
-          </ul>
-        </div>
-      </div>
+            <div class="accordion-section">
+                <div class="accordion-header" onclick="toggleAccordion('reporter-info')">
+                    <span>Reporter Information</span>
+                    <img src="/static/css/images/icons/expand_more.png" alt="expand_more" class="accordion-icon">
+                </div>
+                <div class="accordion-content" id="reporter-info-content">
+                    <ul id="reporter-info-status">
+                        <li>
+                            <strong>Reporter:</strong>
+                            <span id="field-reporter_name">Missing</span>
+                            <button onclick="editUserInfo()" class="edit-btn" title="Edit reporter info">
+                                <img src="/static/css/images/icons/edit.png" alt="edit" style="width:16px;height:16px;">
+                            </button>
+                        </li>
+                        <li>
+                            <strong>Job Title:</strong>
+                            <span id="field-reporter_job">Missing</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
 
-      <!-- Basic Information Section -->
-      <div class="accordion-section">
-        <div class="accordion-header" onclick="toggleAccordion('basic-info')">
-          <span>Basic Information</span>
-          <img src="/static/css/images/icons/expand_more.png"
-               alt="expand_more"
-               class="accordion-icon">
-        </div>
-        <div class="accordion-content" id="basic-info-content">
-          <ul id="basic-info-status">
-            <li><strong>Date:</strong> <span id="field-date">Missing</span></li>
-            <li><strong>Time:</strong> <span id="field-time">Missing</span></li>
-            <li><strong>Shift:</strong> <span id="field-shift">Missing</span></li>
-            <li><strong>Location:</strong> <span id="field-location">Missing</span></li>
-            <li><strong>Person Involved:</strong> <span id="field-person_involved">Missing</span></li>
-            <li><strong>Person Type:</strong> <span id="field-person_type">Missing</span></li>
-            <li><strong>Incident Type:</strong> <span id="field-incident_type">Missing</span></li>
-            <li><strong>Actions Taken:</strong> <span id="field-actions_taken">Missing</span></li>
-            <li><strong>Severity:</strong> <span id="field-severity">Missing</span></li>
-          </ul>
-        </div>
-      </div>
+            <!-- Basic Information Section -->
+            <div class="accordion-section">
+                <div class="accordion-header" onclick="toggleAccordion('basic-info')">
+                    <span>Basic Information</span>
+                    <img src="/static/css/images/icons/expand_more.png" alt="expand_more" class="accordion-icon">
+                </div>
+                <div class="accordion-content" id="basic-info-content">
+                    <ul id="basic-info-status">
+                        <li><strong>Date:</strong> <span id="field-date">Missing</span></li>
+                        <li><strong>Time:</strong> <span id="field-time">Missing</span></li>
+                        <li><strong>Shift:</strong> <span id="field-shift">Missing</span></li>
+                        <li><strong>Location:</strong> <span id="field-location">Missing</span></li>
+                        <li><strong>Person Involved:</strong> <span id="field-person_involved">Missing</span></li>
+                        <li><strong>Person Type:</strong> <span id="field-person_type">Missing</span></li>
+                        <li><strong>Incident Type:</strong> <span id="field-incident_type">Missing</span></li>
+                        <li><strong>Actions Taken:</strong> <span id="field-actions_taken">Missing</span></li>
+                        <li><strong>Severity:</strong> <span id="field-severity">Missing</span></li>
+                    </ul>
+                </div>
+            </div>
 
             <!-- Injury Data Section -->
             <div class="accordion-section">
                 <div class="accordion-header" onclick="toggleAccordion('injury-data')">
-                  <span>Injury Data</span>
-                  <img src="/static/css/images/icons/expand_more.png" alt="Expand" class="accordion-icon">
+                    <span>Injury Data</span>
+                    <img src="/static/css/images/icons/expand_more.png" alt="Expand" class="accordion-icon">
                 </div>
                 <div class="accordion-content" id="injury-data-content">
                     <ul id="injury-data-status">
@@ -1045,7 +1082,7 @@
                         <li><strong>Injury Type:</strong> <span id="field-injury_type">Missing</span></li>
                         <li><strong>Injury Agent:</strong> <span id="field-injury_agent">Missing</span></li>
                         <li><strong>SIF Case:</strong> <span id="field-sif_case">Missing</span></li>
-                    
+
                     </ul>
                 </div>
             </div>
@@ -1053,8 +1090,8 @@
             <!-- Near Miss Data Section -->
             <div class="accordion-section">
                 <div class="accordion-header" onclick="toggleAccordion('near-miss-data')">
-                  <span>Near Miss Data</span>
-                  <img src="/static/css/images/icons/expand_more.png" alt="Expand" class="accordion-icon">
+                    <span>Near Miss Data</span>
+                    <img src="/static/css/images/icons/expand_more.png" alt="Expand" class="accordion-icon">
                 </div>
                 <div class="accordion-content" id="near-miss-data-content">
                     <ul id="near-miss-data-status">
@@ -1067,8 +1104,8 @@
             <!-- Equipment Damage Data Section -->
             <div class="accordion-section">
                 <div class="accordion-header" onclick="toggleAccordion('equipment-damage-data')">
-                  <span>Equipment Damage Data</span>
-                  <img src="/static/css/images/icons/expand_more.png" alt="Expand" class="accordion-icon">
+                    <span>Equipment Damage Data</span>
+                    <img src="/static/css/images/icons/expand_more.png" alt="Expand" class="accordion-icon">
                 </div>
                 <div class="accordion-content" id="equipment-damage-data-content">
                     <ul id="equipment-damage-data-status">
@@ -1082,25 +1119,40 @@
 
             <div class="widget-container" id="user-info-widget" style="display: none">
                 <div style="margin-bottom: 10px;">
-                    <input type="text" id="reporter-name-input" placeholder="Your name" style="width: 100%; margin-bottom: 5px;">
+                    <input type="text" id="reporter-name-input" placeholder="Your name"
+                        style="width: 100%; margin-bottom: 5px;">
                     <input type="text" id="reporter-job-input" placeholder="Your job title" style="width: 100%;">
                 </div>
                 <button onclick="submitUserInfo()" class="btn-primary">Confirm</button>
             </div>
 
             <button id="show-unfinished-reports" class="btn btn-secondary">View Other Unfinished Reports</button>
-    </div>
+        </div>
 
-    <div class="chat-container">
-      <h2>Workplace Safety Chatbot</h2>
-      <div id="chatbox"></div>
+        <div class="chat-container">
+            <!-- Back to Dashboard Button -->
+            <div style="text-align: right; margin-bottom: 10px;">
+                <form method="GET" action="{% url 'admin_dashboard' %}" id="dashboardForm">
+                    {% if request.user.is_authenticated %}
+                    {% if request.user.role == "admin" %}
+                    <button type="submit" class="btn btn-secondary">Back to Admin Dashboard</button>
+                    {% else %}
+                    <button formaction="{% url 'user_dashboard' %}" type="submit" class="btn btn-secondary">Back to User
+                        Dashboard</button>
+                    {% endif %}
+                    {% endif %}
+                </form>
+            </div>
+
+            <h2>Workplace Safety Chatbot</h2>
+            <div id="chatbox"></div>
 
             <div class="widget-container" id="date-picker-widget" style="display: none">
                 <input type="text" id="datepicker" placeholder="Select date">
                 <button onclick="submitDate()" class="btn-primary">Confirm Date</button>
             </div>
             <div class="widget-container" id="time-picker-widget" style="display: none">
-                <input type="time" id="timeInput"/>
+                <input type="time" id="timeInput" />
                 <button onclick="submitTime()" class="btn-primary">Confirm Time</button>
             </div>
 
@@ -1128,7 +1180,7 @@
                 </div>
                 <button onclick="submitSeverity()" class="btn-primary">Confirm Severity</button>
             </div>
-            
+
 
             <div class="widget-container" id="confirm-buttons" style="display: none">
                 <button onclick="confirmChoice('yes')" class="btn-primary">Yes</button>
@@ -1240,7 +1292,8 @@
                     <div class="input-with-arrow">
                         <input type="text" id="life-saving-rules-input"
                             placeholder="Select or type to search life saving rules...">
-                        <button class="dropdown-arrow" onclick="toggleFieldDropdown(event, 'life-saving-rules')">▼</button>
+                        <button class="dropdown-arrow"
+                            onclick="toggleFieldDropdown(event, 'life-saving-rules')">▼</button>
                     </div>
                     <div id="life-saving-rules-dropdown" class="dropdown-content"></div>
                 </div>
@@ -1274,7 +1327,8 @@
                 <div class="autocomplete-wrapper">
                     <div class="input-with-arrow">
                         <input type="text" id="incident-activity-input" placeholder="Select incident activity...">
-                        <button class="dropdown-arrow" onclick="toggleFieldDropdown(event, 'incident-activity')">▼</button>
+                        <button class="dropdown-arrow"
+                            onclick="toggleFieldDropdown(event, 'incident-activity')">▼</button>
                     </div>
                     <div id="incident-activity-dropdown" class="dropdown-content"></div>
                 </div>
@@ -1285,7 +1339,8 @@
                 <div class="autocomplete-wrapper">
                     <div class="input-with-arrow">
                         <input type="text" id="equipment-incident-agent-input" placeholder="Select incident agent...">
-                        <button class="dropdown-arrow" onclick="toggleFieldDropdown(event, 'equipment-incident-agent')">▼</button>
+                        <button class="dropdown-arrow"
+                            onclick="toggleFieldDropdown(event, 'equipment-incident-agent')">▼</button>
                     </div>
                     <div id="equipment-incident-agent-dropdown" class="dropdown-content"></div>
                 </div>
@@ -1301,22 +1356,22 @@
                 <input type="text" id="user-input" placeholder="Type your message…">
                 <input type="file" id="file-upload" style="display:none;" multiple>
                 <button id="upload-btn" class="action-btn" title="Upload files">
-                  <img src="/static/css/images/icons/add.png" alt="Upload">
+                    <img src="/static/css/images/icons/add.png" alt="Upload">
                 </button>
                 <button id="voice-btn" class="action-btn" title="Voice input">
-                  <img src="/static/css/images/icons/mic.png" alt="Voice">
+                    <img src="/static/css/images/icons/mic.png" alt="Voice">
                 </button>
                 <button id="send-btn" class="action-btn" title="Send message">
-                  <img src="/static/css/images/icons/send.png" alt="Send">
+                    <img src="/static/css/images/icons/send.png" alt="Send">
                 </button>
-              </div>
             </div>
-          </div>
+        </div>
+    </div>
 
     <script>
         // Get session ID from Django template or generate a default one
         const sessionId = '{{ session_id|default:"default" }}';
-        
+
         window.lastSuggestionsList = null;
         window.currentData = {};   // Global object to cache filled fields
 
@@ -1489,11 +1544,11 @@
                 });
 
             // File upload handling
-            document.getElementById('upload-btn').addEventListener('click', function() {
+            document.getElementById('upload-btn').addEventListener('click', function () {
                 document.getElementById('file-upload').click();
             });
 
-            document.getElementById('file-upload').addEventListener('change', function(e) {
+            document.getElementById('file-upload').addEventListener('change', function (e) {
                 const files = e.target.files;
                 if (files.length > 0) {
                     const formData = new FormData();
@@ -1510,12 +1565,12 @@
                         data: formData,
                         processData: false,
                         contentType: false,
-                        success: function(response) {
+                        success: function (response) {
                             if (response.success) {
                                 // Create container for uploaded files
                                 let filesContainer = document.createElement('div');
                                 filesContainer.className = 'uploaded-files-container';
-                                
+
                                 // Add files to container
                                 response.files.forEach(file => {
                                     const fileHtml = `
@@ -1529,19 +1584,19 @@
                                     `;
                                     filesContainer.innerHTML += fileHtml;
                                 });
-                                
+
                                 // Create a message element
                                 const messageDiv = document.createElement('div');
                                 messageDiv.className = 'message user-message';
                                 messageDiv.appendChild(filesContainer);
-                                
+
                                 // Add to chatbox
                                 $('#chatbox').append(messageDiv);
-                                
+
                                 // Add bot response about files
                                 const fileMessage = `I've received ${response.files.length} file(s). They have been attached to your report.`;
                                 appendMessage(fileMessage);
-                                
+
                                 // Scroll to bottom
                                 const chatbox = document.getElementById('chatbox');
                                 chatbox.scrollTop = chatbox.scrollHeight;
@@ -1549,12 +1604,12 @@
                                 alert('Error uploading files: ' + response.error);
                             }
                         },
-                        error: function(xhr, status, error) {
+                        error: function (xhr, status, error) {
                             console.error('Upload error:', error);
                             console.error('Server response:', xhr.responseText);
                             alert('Error uploading files. Please try again.');
                         },
-                        complete: function() {
+                        complete: function () {
                             // Reset upload button and clear selection
                             $('#upload-btn i').text('add');
                             $('#file-upload').val('');
@@ -1564,23 +1619,23 @@
             });
 
             // Remove uploaded file
-            $(document).on('click', '.remove-file', function() {
+            $(document).on('click', '.remove-file', function () {
                 const fileId = $(this).data('file-id');
                 const fileElement = $(this).closest('.uploaded-file');
-                
+
                 $.ajax({
                     url: '/delete_file/?session_id=' + getSessionId(),
                     type: 'POST',
                     data: JSON.stringify({ file_id: fileId }),
                     contentType: 'application/json',
-                    success: function(response) {
+                    success: function (response) {
                         if (response.success) {
                             fileElement.remove();
                         } else {
                             alert('Error deleting file: ' + response.error);
                         }
                     },
-                    error: function() {
+                    error: function () {
                         alert('Error deleting file. Please try again.');
                     }
                 });
@@ -1676,7 +1731,7 @@
 
         function submitTime() {
             const timeVal = document.getElementById('timeInput').value;
-            if(!timeVal) return;
+            if (!timeVal) return;
             updateSidebarField('basic_info', 'time', timeVal);
             document.getElementById('time-picker-widget').style.display = 'none';
             $("#user-input").prop('disabled', false);
@@ -1693,9 +1748,9 @@
         }
 
         function submitSeverity() {
-            const radio   = document.querySelector('input[name="severity"]:checked');
-            const value   = radio ? radio.value
-                                : document.getElementById('severity-input').value.trim();
+            const radio = document.querySelector('input[name="severity"]:checked');
+            const value = radio ? radio.value
+                : document.getElementById('severity-input').value.trim();
 
             if (!value) return;        // 用户还没选/填任何东西
 
@@ -1768,7 +1823,7 @@
 
                 if (messageStr.includes("Based on similar incidents") &&
                     messageStr.includes("here are some suggested actions taken")) {
-                    
+
                     // 创建一个容器来放推荐按钮
                     const suggestionsContainer = document.createElement('div');
                     suggestionsContainer.style.display = 'flex';
@@ -1951,7 +2006,7 @@
                 const messageDiv = document.createElement('div');
                 messageDiv.className = 'message bot-message';
                 messageDiv.innerText = "Does this summary look correct?";
-                
+
                 // 创建按钮容器
                 const summaryButtons = document.createElement('div');
                 summaryButtons.className = 'summary-buttons-inline';
@@ -1960,10 +2015,10 @@
                     <button onclick="summaryChoice('change something')" class="btn-secondary">Make Changes</button>
                     <button onclick="summaryChoice('add more info')" class="btn-info">Add More Info</button>
                 `;
-                
+
                 // 添加按钮到消息
                 messageDiv.appendChild(summaryButtons);
-                
+
                 // 添加到聊天框
                 document.getElementById('chatbox').appendChild(messageDiv);
                 document.getElementById('chatbox').scrollTop = document.getElementById('chatbox').scrollHeight;
@@ -2004,135 +2059,135 @@
             fetch(`/api/chat/?session_id=${sessionId}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
+                body: JSON.stringify({
                     message: message,
                     current_data: window.currentData
                 })
             })
-            .then(response => response.json())
-            .then(data => {
-                // If backend says to redirect, go there immediately
-                if (data.redirect) {
-                    window.location.href = data.redirect;
-                    return;
-                }
-                const loadingIndicator = document.getElementById('loading-indicator');
-                if (loadingIndicator) {
-                    loadingIndicator.remove();
-                }
-                userInput.disabled = false;
-                sendButton.disabled = false;
+                .then(response => response.json())
+                .then(data => {
+                    // If backend says to redirect, go there immediately
+                    if (data.redirect) {
+                        window.location.href = data.redirect;
+                        return;
+                    }
+                    const loadingIndicator = document.getElementById('loading-indicator');
+                    if (loadingIndicator) {
+                        loadingIndicator.remove();
+                    }
+                    userInput.disabled = false;
+                    sendButton.disabled = false;
 
-                // Clear the cache after successful request
-                window.currentData = {};
+                    // Clear the cache after successful request
+                    window.currentData = {};
 
-                if (data.response) {
-                    // 如果是提交成功的消息，直接显示，不需要显示确认按钮
-                    if (data.response.includes("successfully recorded")) {
-                        clearSession();
-                        const messageDiv = document.createElement('div');
-                        messageDiv.className = 'message bot-message';
-                        messageDiv.innerText = data.response;
+                    if (data.response) {
+                        // 如果是提交成功的消息，直接显示，不需要显示确认按钮
+                        if (data.response.includes("successfully recorded")) {
+                            clearSession();
+                            const messageDiv = document.createElement('div');
+                            messageDiv.className = 'message bot-message';
+                            messageDiv.innerText = data.response;
 
-                        // 创建"Start New Report"按钮
-                        const buttonContainer = document.createElement('div');
-                        buttonContainer.className = 'widget-container';
-                        buttonContainer.style.display = 'block';
-                        buttonContainer.style.marginTop = '10px';
-                        
-                        const newReportButton = document.createElement('button');
-                        newReportButton.className = 'btn btn-primary';
-                        newReportButton.textContent = 'Start New Report';
-                        newReportButton.onclick = function() {
-                            window.location.reload();
-                        };
-                        
-                        buttonContainer.appendChild(newReportButton);
-                        messageDiv.appendChild(buttonContainer);
-                        $('#chatbox').append(messageDiv);
-                    } else if (data.response.includes("Does this summary look correct")) {
-                        // 如果是确认消息，显示带按钮的消息
-                        const messageDiv = document.createElement('div');
-                        messageDiv.className = 'message bot-message';
-                        messageDiv.innerText = data.response;
-                        
-                        const summaryButtons = document.createElement('div');
-                        summaryButtons.className = 'summary-buttons-inline';
-                        summaryButtons.innerHTML = `
+                            // 创建"Start New Report"按钮
+                            const buttonContainer = document.createElement('div');
+                            buttonContainer.className = 'widget-container';
+                            buttonContainer.style.display = 'block';
+                            buttonContainer.style.marginTop = '10px';
+
+                            const newReportButton = document.createElement('button');
+                            newReportButton.className = 'btn btn-primary';
+                            newReportButton.textContent = 'Start New Report';
+                            newReportButton.onclick = function () {
+                                window.location.reload();
+                            };
+
+                            buttonContainer.appendChild(newReportButton);
+                            messageDiv.appendChild(buttonContainer);
+                            $('#chatbox').append(messageDiv);
+                        } else if (data.response.includes("Does this summary look correct")) {
+                            // 如果是确认消息，显示带按钮的消息
+                            const messageDiv = document.createElement('div');
+                            messageDiv.className = 'message bot-message';
+                            messageDiv.innerText = data.response;
+
+                            const summaryButtons = document.createElement('div');
+                            summaryButtons.className = 'summary-buttons-inline';
+                            summaryButtons.innerHTML = `
                             <button onclick="handleSubmitReport()" class="btn-primary">Submit Report</button>
                             <button onclick="summaryChoice('change something')" class="btn-secondary">Make Changes</button>
                             <button onclick="summaryChoice('add more info')" class="btn-info">Add More Info</button>
                         `;
-                        
-                        messageDiv.appendChild(summaryButtons);
-                        $('#chatbox').append(messageDiv);
-                    }
-                    else if (data.response.includes("Based on similar incidents")) {
-    appendMessage(data.response);
-} 
-                    else {
-                        // 其他普通消息
-                        appendMessage(data.response);
-                    }
-                }
 
-                if (data.suggestions && Array.isArray(data.suggestions)) {
-                    window.lastSuggestionsList = data.suggestions;
-                } else {
-                    window.lastSuggestionsList = null;
-                }
-
-                // 如果是最终确认消息，不显示新的确认界面
-                if (message === 'confirm' && data.response && data.response.includes("Does this summary look correct")) {
-                    return;
-                }
-
-                if (data.extracted) {
-                    updateSidebarFromExtracted(data.extracted);
-                }
-
-                hideAllWidgets();
-
-
-                if (data.response && data.response.includes("Does this summary look correct")) {
-                    $("#summary-buttons").show();
-                    $("#user-input").prop('disabled', false);
-                }
-
-                if (data.extracted) {
-                    if (data.extracted.basic_info) {
-                        for (const [key, val] of Object.entries(data.extracted.basic_info)) {
-                            const fieldElement = document.getElementById(`field-${key}`);
-                            if (fieldElement) {
-                                fieldElement.textContent = val || 'Missing';
-                            }
+                            messageDiv.appendChild(summaryButtons);
+                            $('#chatbox').append(messageDiv);
+                        }
+                        else if (data.response.includes("Based on similar incidents")) {
+                            appendMessage(data.response);
+                        }
+                        else {
+                            // 其他普通消息
+                            appendMessage(data.response);
                         }
                     }
-                    if (data.extracted.injury_data) {
-                        for (const [key, val] of Object.entries(data.extracted.injury_data)) {
-                            const fieldElement = document.getElementById(`field-${key}`);
-                            if (fieldElement) {
-                                fieldElement.textContent = val || 'Missing';
+
+                    if (data.suggestions && Array.isArray(data.suggestions)) {
+                        window.lastSuggestionsList = data.suggestions;
+                    } else {
+                        window.lastSuggestionsList = null;
+                    }
+
+                    // 如果是最终确认消息，不显示新的确认界面
+                    if (message === 'confirm' && data.response && data.response.includes("Does this summary look correct")) {
+                        return;
+                    }
+
+                    if (data.extracted) {
+                        updateSidebarFromExtracted(data.extracted);
+                    }
+
+                    hideAllWidgets();
+
+
+                    if (data.response && data.response.includes("Does this summary look correct")) {
+                        $("#summary-buttons").show();
+                        $("#user-input").prop('disabled', false);
+                    }
+
+                    if (data.extracted) {
+                        if (data.extracted.basic_info) {
+                            for (const [key, val] of Object.entries(data.extracted.basic_info)) {
+                                const fieldElement = document.getElementById(`field-${key}`);
+                                if (fieldElement) {
+                                    fieldElement.textContent = val || 'Missing';
+                                }
                             }
                         }
+                        if (data.extracted.injury_data) {
+                            for (const [key, val] of Object.entries(data.extracted.injury_data)) {
+                                const fieldElement = document.getElementById(`field-${key}`);
+                                if (fieldElement) {
+                                    fieldElement.textContent = val || 'Missing';
+                                }
+                            }
+                        }
+                        appendMessage({ extracted: data.extracted });
                     }
-                    appendMessage({ extracted: data.extracted });
-                }
 
-                if (!data.show_widget) {
-                    userInput.focus();
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                const loadingIndicator = document.getElementById('loading-indicator');
-                if (loadingIndicator) {
-                    loadingIndicator.remove();
-                }
-                userInput.disabled = false;
-                sendButton.disabled = false;
-                appendMessage('Sorry, something went wrong.');
-            });
+                    if (!data.show_widget) {
+                        userInput.focus();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    const loadingIndicator = document.getElementById('loading-indicator');
+                    if (loadingIndicator) {
+                        loadingIndicator.remove();
+                    }
+                    userInput.disabled = false;
+                    sendButton.disabled = false;
+                    appendMessage('Sorry, something went wrong.');
+                });
         }
 
         function toggleVoiceInput() {
@@ -2171,18 +2226,18 @@
         }
 
         function toggleAccordion(sectionId) {
-        const content = document.getElementById(`${sectionId}-content`);
-        const header = content.previousElementSibling;
-        const icon  = header.querySelector('.accordion-icon');
+            const content = document.getElementById(`${sectionId}-content`);
+            const header = content.previousElementSibling;
+            const icon = header.querySelector('.accordion-icon');
 
-        const isOpen = content.classList.toggle('active');
-        header.classList.toggle('active', isOpen);
+            const isOpen = content.classList.toggle('active');
+            header.classList.toggle('active', isOpen);
 
-        if (isOpen) {
-            icon.src = '/static/css/images/icons/expand_less.png';
-        } else {
-            icon.src = '/static/css/images/icons/expand_more.png';
-        }
+            if (isOpen) {
+                icon.src = '/static/css/images/icons/expand_less.png';
+            } else {
+                icon.src = '/static/css/images/icons/expand_more.png';
+            }
         }
 
         document.addEventListener('DOMContentLoaded', function () {
@@ -2365,35 +2420,35 @@
             fetch(`/api/chat/?session_id=${getSessionId()}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
+                body: JSON.stringify({
                     message: 'yes',
                     user_info: userInfo
                 })
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.response) {
-                    appendMessage(data.response);
-                    // === STEP 4.2: Trigger widgets based on LLM message content ===
-                    for (const field in FIELD_WIDGET_MAP) {
-                        const displayName = field.replaceAll("_", " ");
-                        if (data.response.toLowerCase().includes(displayName)) {
-                            const widgetId = FIELD_WIDGET_MAP[field];
-                            const widgetElement = document.getElementById(widgetId);
-                            if (widgetElement) {
-                                widgetElement.style.display = "block";
-                                break;
+                .then(response => response.json())
+                .then(data => {
+                    if (data.response) {
+                        appendMessage(data.response);
+                        // === STEP 4.2: Trigger widgets based on LLM message content ===
+                        for (const field in FIELD_WIDGET_MAP) {
+                            const displayName = field.replaceAll("_", " ");
+                            if (data.response.toLowerCase().includes(displayName)) {
+                                const widgetId = FIELD_WIDGET_MAP[field];
+                                const widgetElement = document.getElementById(widgetId);
+                                if (widgetElement) {
+                                    widgetElement.style.display = "block";
+                                    break;
+                                }
                             }
                         }
                     }
-                }
-                $("#user-input").prop('disabled', false);
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                appendMessage('Sorry, something went wrong while submitting the report.');
-                $("#user-input").prop('disabled', false);
-            });
+                    $("#user-input").prop('disabled', false);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    appendMessage('Sorry, something went wrong while submitting the report.');
+                    $("#user-input").prop('disabled', false);
+                });
         }
 
         function summaryChoice(choice) {
@@ -2417,18 +2472,18 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ message: 'yes' })
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.response) {
-                        appendMessage(data.response);
-                    }
-                    $("#user-input").prop('disabled', false);
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    appendMessage('Sorry, something went wrong while submitting the report.');
-                    $("#user-input").prop('disabled', false);
-                });
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.response) {
+                            appendMessage(data.response);
+                        }
+                        $("#user-input").prop('disabled', false);
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        appendMessage('Sorry, something went wrong while submitting the report.');
+                        $("#user-input").prop('disabled', false);
+                    });
             }
         }
 
@@ -2570,26 +2625,26 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ continue: false })  // 告诉后端删除未完成的报告
             })
-            .then(() => {
-                // 4. 清空聊天框和侧边栏
-                document.getElementById('chatbox').innerHTML = '';
-                document.querySelectorAll('[id^="field-"]').forEach(span => span.textContent = 'Missing');
+                .then(() => {
+                    // 4. 清空聊天框和侧边栏
+                    document.getElementById('chatbox').innerHTML = '';
+                    document.querySelectorAll('[id^="field-"]').forEach(span => span.textContent = 'Missing');
 
-                // 5. 告诉 checkUnfinishedReport() 这次不要再弹窗
-                localStorage.setItem('skip_unfinished_prompt', 'true');
+                    // 5. 告诉 checkUnfinishedReport() 这次不要再弹窗
+                    localStorage.setItem('skip_unfinished_prompt', 'true');
 
-                // 6. 拉取新的欢迎语
-                fetch(`/api/chat/?session_id=${newSession}`)
-                    .then(r => r.json())
-                    .then(data => {
-                        if (data.response) appendMessage(data.response);
-                    });
+                    // 6. 拉取新的欢迎语
+                    fetch(`/api/chat/?session_id=${newSession}`)
+                        .then(r => r.json())
+                        .then(data => {
+                            if (data.response) appendMessage(data.response);
+                        });
 
-                // 7. 激活输入框
-                const input = document.getElementById('user-input');
-                input.disabled = false;
-                input.focus();
-            });
+                    // 7. 激活输入框
+                    const input = document.getElementById('user-input');
+                    input.disabled = false;
+                    input.focus();
+                });
         }
 
         function showUnfinishedReportDialog(unfinishedData) {
@@ -2608,7 +2663,7 @@
             document.body.appendChild(dialog);
 
             // 阻止对话框以外的点击事件
-            dialog.addEventListener('click', function(e) {
+            dialog.addEventListener('click', function (e) {
                 if (e.target === dialog) {
                     e.stopPropagation();
                 }
@@ -2644,7 +2699,7 @@
 
                         if (data.restored_data.report) {
                             updateSidebarFromExtracted(data.restored_data.report);
-                            
+
                             // 处理 incident type 相关的 UI 更新
                             const incidentType = data.restored_data.report.basic_info?.incident_type;
                             if (incidentType) {
@@ -2692,15 +2747,15 @@
                         }
 
                         hideAllWidgets();
-                        
+
                         // 显示欢迎回来的消息
                         appendMessage(data.response);
-                        
+
                         // 如果有下一个问题，显示它
                         if (data.next_question) {
                             appendMessage(data.next_question);
                         }
-                        
+
                         // 如果有对应的widget，显示它
                         if (data.show_widget) {
                             $(`#${data.show_widget}`).show();
@@ -2722,57 +2777,57 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ button_choice: choice })
             })
-            .then(res => res.json())
-            .then(data => {
-                appendMessage(choice, true);
-                if (data.response) appendMessage(data.response);
+                .then(res => res.json())
+                .then(data => {
+                    appendMessage(choice, true);
+                    if (data.response) appendMessage(data.response);
 
-                document.querySelector('.initial-options-container').style.display = 'none';
+                    document.querySelector('.initial-options-container').style.display = 'none';
 
-                const displayValue = choice === 'Report an incident' ? 'N/A' : choice;
+                    const displayValue = choice === 'Report an incident' ? 'N/A' : choice;
 
-                const old = document.getElementById('sidebar-selected-option');
-                if (old) old.remove();
+                    const old = document.getElementById('sidebar-selected-option');
+                    if (old) old.remove();
 
-                const sidebar = document.querySelector('.sidebar');
-                const selectedDiv = document.createElement('div');
-                selectedDiv.id = 'sidebar-selected-option';
-                selectedDiv.style.color = '#ecf0f1';
-                selectedDiv.style.padding = '8px 12px';
-                selectedDiv.style.margin = '10px 0';
-                selectedDiv.style.backgroundColor = '#34495e';
-                selectedDiv.style.borderRadius = '4px';
-                selectedDiv.innerHTML = `<strong>Incident Type:</strong> ${displayValue}`;
-                const title = sidebar.querySelector('h3');
-                sidebar.insertBefore(selectedDiv, title.nextSibling);
+                    const sidebar = document.querySelector('.sidebar');
+                    const selectedDiv = document.createElement('div');
+                    selectedDiv.id = 'sidebar-selected-option';
+                    selectedDiv.style.color = '#ecf0f1';
+                    selectedDiv.style.padding = '8px 12px';
+                    selectedDiv.style.margin = '10px 0';
+                    selectedDiv.style.backgroundColor = '#34495e';
+                    selectedDiv.style.borderRadius = '4px';
+                    selectedDiv.innerHTML = `<strong>Incident Type:</strong> ${displayValue}`;
+                    const title = sidebar.querySelector('h3');
+                    sidebar.insertBefore(selectedDiv, title.nextSibling);
 
-                const injurySection = document.getElementById('injury-data-content').parentElement;
-                const nearMissSection = document.getElementById('near-miss-data-content').parentElement;
-                const equipmentDamageSection = document.getElementById('equipment-damage-data-content').parentElement;
+                    const injurySection = document.getElementById('injury-data-content').parentElement;
+                    const nearMissSection = document.getElementById('near-miss-data-content').parentElement;
+                    const equipmentDamageSection = document.getElementById('equipment-damage-data-content').parentElement;
 
-                if (choice === 'Personal Injuries') {
-                    injurySection.style.display = '';         
-                    nearMissSection.style.display = 'none';    
-                    equipmentDamageSection.style.display = 'none';
-                } else if (choice === 'Near Miss') {
-                    injurySection.style.display = 'none';
-                    nearMissSection.style.display = '';
-                    equipmentDamageSection.style.display = 'none';
-                } else if (choice === 'Equipment Damage') {
-                    injurySection.style.display = 'none';
-                    nearMissSection.style.display = 'none';
-                    equipmentDamageSection.style.display = '';
-                } else {
-                    injurySection.style.display = 'none';
-                    nearMissSection.style.display = 'none';
-                    equipmentDamageSection.style.display = 'none';
-                }
+                    if (choice === 'Personal Injuries') {
+                        injurySection.style.display = '';
+                        nearMissSection.style.display = 'none';
+                        equipmentDamageSection.style.display = 'none';
+                    } else if (choice === 'Near Miss') {
+                        injurySection.style.display = 'none';
+                        nearMissSection.style.display = '';
+                        equipmentDamageSection.style.display = 'none';
+                    } else if (choice === 'Equipment Damage') {
+                        injurySection.style.display = 'none';
+                        nearMissSection.style.display = 'none';
+                        equipmentDamageSection.style.display = '';
+                    } else {
+                        injurySection.style.display = 'none';
+                        nearMissSection.style.display = 'none';
+                        equipmentDamageSection.style.display = 'none';
+                    }
 
-                updateSidebarField('basic_info', 'incident_type', displayValue);
+                    updateSidebarField('basic_info', 'incident_type', displayValue);
 
-                $("#user-input").prop('disabled', false).focus();
-            })
-            .catch(console.error);
+                    $("#user-input").prop('disabled', false).focus();
+                })
+                .catch(console.error);
         }
 
 
@@ -2858,96 +2913,96 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ session_id: sessionId })
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    alert(data.error);
-                    return;
-                }
-                closeUnfinishedReportsDialog();
-                
-                // 更新当前会话 ID
-                localStorage.setItem('incident_report_session_id', sessionId);
-                const currentUrl = new URL(window.location.href);
-                currentUrl.searchParams.set('session_id', sessionId);
-                window.history.replaceState({}, '', currentUrl);
-                
-                // Clear current chat
-                document.getElementById('chatbox').innerHTML = '';
-                
-                // Restore chat history
-                if (data.restored_data.chatHistory) {
-                    data.restored_data.chatHistory.forEach(message => {
-                        appendMessage(message.content, message.isUser);
-                    });
-                }
-                
-                // Update sidebar with restored data
-                if (data.restored_data.report) {
-                    updateSidebarFromExtracted(data.restored_data.report);
-                    
-                    // 处理 incident type 相关的 UI 更新
-                    const incidentType = data.restored_data.report.basic_info?.incident_type;
-                    if (incidentType) {
-                        // 更新左侧边栏的 incident type 显示
-                        const old = document.getElementById('sidebar-selected-option');
-                        if (old) old.remove();
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(data.error);
+                        return;
+                    }
+                    closeUnfinishedReportsDialog();
 
-                        const sidebar = document.querySelector('.sidebar');
-                        const selectedDiv = document.createElement('div');
-                        selectedDiv.id = 'sidebar-selected-option';
-                        selectedDiv.style.color = '#ecf0f1';
-                        selectedDiv.style.padding = '8px 12px';
-                        selectedDiv.style.margin = '10px 0';
-                        selectedDiv.style.backgroundColor = '#34495e';
-                        selectedDiv.style.borderRadius = '4px';
-                        selectedDiv.innerHTML = `<strong>Incident Type:</strong> ${incidentType}`;
-                        const title = sidebar.querySelector('h3');
-                        sidebar.insertBefore(selectedDiv, title.nextSibling);
+                    // 更新当前会话 ID
+                    localStorage.setItem('incident_report_session_id', sessionId);
+                    const currentUrl = new URL(window.location.href);
+                    currentUrl.searchParams.set('session_id', sessionId);
+                    window.history.replaceState({}, '', currentUrl);
 
-                        // 显示/隐藏相应的数据部分
-                        const injurySection = document.getElementById('injury-data-content').parentElement;
-                        const nearMissSection = document.getElementById('near-miss-data-content').parentElement;
-                        const equipmentDamageSection = document.getElementById('equipment-damage-data-content').parentElement;
+                    // Clear current chat
+                    document.getElementById('chatbox').innerHTML = '';
 
-                        // 重置所有部分的显示状态
-                        injurySection.style.display = 'none';
-                        nearMissSection.style.display = 'none';
-                        equipmentDamageSection.style.display = 'none';
+                    // Restore chat history
+                    if (data.restored_data.chatHistory) {
+                        data.restored_data.chatHistory.forEach(message => {
+                            appendMessage(message.content, message.isUser);
+                        });
+                    }
 
-                        // 根据 incident type 显示相应部分
-                        if (incidentType === 'Personal Injuries') {
-                            injurySection.style.display = '';
-                        } else if (incidentType === 'Near Miss') {
-                            nearMissSection.style.display = '';
-                        } else if (incidentType === 'Equipment Damage') {
-                            equipmentDamageSection.style.display = '';
+                    // Update sidebar with restored data
+                    if (data.restored_data.report) {
+                        updateSidebarFromExtracted(data.restored_data.report);
+
+                        // 处理 incident type 相关的 UI 更新
+                        const incidentType = data.restored_data.report.basic_info?.incident_type;
+                        if (incidentType) {
+                            // 更新左侧边栏的 incident type 显示
+                            const old = document.getElementById('sidebar-selected-option');
+                            if (old) old.remove();
+
+                            const sidebar = document.querySelector('.sidebar');
+                            const selectedDiv = document.createElement('div');
+                            selectedDiv.id = 'sidebar-selected-option';
+                            selectedDiv.style.color = '#ecf0f1';
+                            selectedDiv.style.padding = '8px 12px';
+                            selectedDiv.style.margin = '10px 0';
+                            selectedDiv.style.backgroundColor = '#34495e';
+                            selectedDiv.style.borderRadius = '4px';
+                            selectedDiv.innerHTML = `<strong>Incident Type:</strong> ${incidentType}`;
+                            const title = sidebar.querySelector('h3');
+                            sidebar.insertBefore(selectedDiv, title.nextSibling);
+
+                            // 显示/隐藏相应的数据部分
+                            const injurySection = document.getElementById('injury-data-content').parentElement;
+                            const nearMissSection = document.getElementById('near-miss-data-content').parentElement;
+                            const equipmentDamageSection = document.getElementById('equipment-damage-data-content').parentElement;
+
+                            // 重置所有部分的显示状态
+                            injurySection.style.display = 'none';
+                            nearMissSection.style.display = 'none';
+                            equipmentDamageSection.style.display = 'none';
+
+                            // 根据 incident type 显示相应部分
+                            if (incidentType === 'Personal Injuries') {
+                                injurySection.style.display = '';
+                            } else if (incidentType === 'Near Miss') {
+                                nearMissSection.style.display = '';
+                            } else if (incidentType === 'Equipment Damage') {
+                                equipmentDamageSection.style.display = '';
+                            }
                         }
                     }
-                }
-                
-                // 显示欢迎回来的消息
-                appendMessage(data.response);
-                
-                // 如果有下一个问题，显示它
-                if (data.next_question) {
-                    appendMessage(data.next_question);
-                }
-                
-                // 如果有对应的widget，显示它
-                hideAllWidgets();
-                if (data.show_widget) {
-                    $(`#${data.show_widget}`).show();
-                    $("#user-input").prop('disabled', false);
-                } else {
-                    // 如果没有widget，启用输入框并聚焦
-                    $("#user-input").prop('disabled', false).focus();
-                }
-            })
-            .catch(error => {
-                console.error('Error resuming report:', error);
-                alert('Error resuming the report.');
-            });
+
+                    // 显示欢迎回来的消息
+                    appendMessage(data.response);
+
+                    // 如果有下一个问题，显示它
+                    if (data.next_question) {
+                        appendMessage(data.next_question);
+                    }
+
+                    // 如果有对应的widget，显示它
+                    hideAllWidgets();
+                    if (data.show_widget) {
+                        $(`#${data.show_widget}`).show();
+                        $("#user-input").prop('disabled', false);
+                    } else {
+                        // 如果没有widget，启用输入框并聚焦
+                        $("#user-input").prop('disabled', false).focus();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error resuming report:', error);
+                    alert('Error resuming the report.');
+                });
         }
 
         // 1) 弹出 admin 登录框
@@ -2977,44 +3032,44 @@
             const password = document.getElementById('admin-pass').value;
             fetch(`/api/chat/?remove_report=true`, {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ session_id: sessionId, username, password })
             })
-            .then(r => r.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Report removed');
-                    closeAdminLogin();
-                    
-                    // Find and remove the report item from the dialog
-                    const reportItems = document.querySelectorAll('.report-item');
-                    reportItems.forEach(item => {
-                        // Check if this item contains the session ID we want to remove
-                        const sessionIdText = item.querySelector('.report-info p:first-child').textContent;
-                        if (sessionIdText.includes(sessionId.replace('session_', ''))) {
-                            item.remove();
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Report removed');
+                        closeAdminLogin();
+
+                        // Find and remove the report item from the dialog
+                        const reportItems = document.querySelectorAll('.report-item');
+                        reportItems.forEach(item => {
+                            // Check if this item contains the session ID we want to remove
+                            const sessionIdText = item.querySelector('.report-info p:first-child').textContent;
+                            if (sessionIdText.includes(sessionId.replace('session_', ''))) {
+                                item.remove();
+                            }
+                        });
+
+                        // Check if there are any reports left
+                        const reportsList = document.querySelector('.reports-list');
+                        if (reportsList && reportsList.children.length === 0) {
+                            // If no reports left, close the dialog
+                            closeUnfinishedReportsDialog();
                         }
-                    });
-                    
-                    // Check if there are any reports left
-                    const reportsList = document.querySelector('.reports-list');
-                    if (reportsList && reportsList.children.length === 0) {
-                        // If no reports left, close the dialog
-                        closeUnfinishedReportsDialog();
+                    } else {
+                        alert(data.error || 'Authentication failed');
                     }
-                } else {
-                    alert(data.error || 'Authentication failed');
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                alert('Error removing report');
-            });
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert('Error removing report');
+                });
         }
 
 
         // Add event listener for the new button
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const showUnfinishedBtn = document.getElementById('show-unfinished-reports');
             if (showUnfinishedBtn) {
                 showUnfinishedBtn.addEventListener('click', showUnfinishedReportsDialog);
@@ -3061,12 +3116,12 @@
         function closeAdditionalInfo() {
             $("#additional-info").hide();
             $("#user-input").prop('disabled', false);
-            
+
             // 创建一个新的消息元素
             const messageDiv = document.createElement('div');
             messageDiv.className = 'message bot-message';
             messageDiv.innerText = "Does this summary look correct?";
-            
+
             // 创建按钮容器
             const summaryButtons = document.createElement('div');
             summaryButtons.className = 'summary-buttons-inline';
@@ -3075,10 +3130,10 @@
                 <button onclick="summaryChoice('change something')" class="btn-secondary">Make Changes</button>
                 <button onclick="summaryChoice('add more info')" class="btn-info">Add More Info</button>
             `;
-            
+
             // 添加按钮到消息
             messageDiv.appendChild(summaryButtons);
-            
+
             // 添加到聊天框
             document.getElementById('chatbox').appendChild(messageDiv);
             document.getElementById('chatbox').scrollTop = document.getElementById('chatbox').scrollHeight;
@@ -3095,23 +3150,23 @@
                         file_id: fileId
                     })
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Remove the file element from the UI
-                        const fileElement = document.querySelector(`[data-file-id="${fileId}"]`);
-                        if (fileElement) {
-                            fileElement.remove();
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Remove the file element from the UI
+                            const fileElement = document.querySelector(`[data-file-id="${fileId}"]`);
+                            if (fileElement) {
+                                fileElement.remove();
+                            }
+                            appendMessage('File deleted successfully', true);
+                        } else {
+                            appendMessage('Error deleting file: ' + data.error, true);
                         }
-                        appendMessage('File deleted successfully', true);
-                    } else {
-                        appendMessage('Error deleting file: ' + data.error, true);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    appendMessage('Error deleting file', true);
-                });
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        appendMessage('Error deleting file', true);
+                    });
             }
         }
 
@@ -3119,7 +3174,7 @@
         function submitUserInfo() {
             const name = document.getElementById('reporter-name-input').value.trim();
             const job = document.getElementById('reporter-job-input').value.trim();
-            
+
             if (!name || !job) {
                 alert('Please provide both name and job title');
                 return;
@@ -3145,11 +3200,11 @@
         function editUserInfo() {
             const nameInput = document.getElementById('reporter-name-input');
             const jobInput = document.getElementById('reporter-job-input');
-            
+
             // Pre-fill with current values
             nameInput.value = document.getElementById('field-reporter_name').textContent;
             jobInput.value = document.getElementById('field-reporter_job').textContent;
-            
+
             $("#user-info-widget").show();
             $("#user-input").prop('disabled', false);
         }

@@ -1,4 +1,6 @@
 <h2>Admin Dashboard</h2>
+<a href="{% url 'logout_user' %}" style="float:right; color:red;">Logout</a>
+
 <a href="{% url 'register_user' %}">Create New User</a>
 
 {% for item in user_data %}

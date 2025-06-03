@@ -1,14 +1,16 @@
 from django.db import models
 import json
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 class IncidentReport(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     report_json = models.JSONField()  # Store the full report as JSON
     created_at = models.DateTimeField(auto_now_add=True)
     creator_name       = models.CharField(max_length=100)
     creator_job_title  = models.CharField(max_length=100)
     last_modified_name = models.CharField(max_length=100, blank=True)
     last_modified_job  = models.CharField(max_length=100, blank=True)
-    created_at         = models.DateTimeField(auto_now_add=True)
     last_modified_at   = models.DateTimeField(auto_now=True)
 
     def __str__(self):
@@ -17,8 +19,9 @@ class IncidentReport(models.Model):
 
 
 class UnfinishedReport(models.Model):
-    session_id = models.CharField(max_length=100)
-    report_data = models.JSONField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    session_id = models.CharField(max_length=100, unique=True)
+    report_data = models.JSONField(default=dict)
     last_updated = models.DateTimeField(auto_now=True)
     
     def get_report_data(self):

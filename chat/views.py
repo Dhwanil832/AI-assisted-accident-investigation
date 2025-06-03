@@ -14,6 +14,8 @@ from chat.rag_utils import search_similar_incidents
 from django.contrib.auth.decorators import login_required
 from .models import IncidentReport, UnfinishedReport
 from accounts.models import CustomUser 
+from django.contrib.auth.decorators import user_passes_test
+
 
 
 SIF_CASE_OPTIONS = [
@@ -114,6 +116,9 @@ widget_map = {
     "incident_activity": "incident-activity-picker",
     "incident_agent": "equipment-incident-agent-picker"
 }
+
+def is_admin(user):
+    return user.is_authenticated and user.role == 'admin'
 
 def guess_sif_case_from_text(text: str):
     text_lower = text.lower()
@@ -470,7 +475,8 @@ def chatbot_api(request):
 
     session_data = USER_SESSIONS[session_id]
     if not session_data:
-             "step": "greet",
+        USER_SESSIONS[session_id] = {
+            "step": "greet",
             "report": {},
             "chatHistory": []
         }
@@ -939,7 +945,10 @@ def chatbot_ui(request):
             return redirect("admin_dashboard" if request.user.role == "admin" else "user_dashboard")
     else:
         session_id = "default"
-        if session_id not in USER_SESSIONS or USER_SESSIONS[session_id].get("step") == "completed":
+        if "restored_report" in request.session:
+            USER_SESSIONS[session_id] = request.session.pop("restored_report")
+            print(f"Restored session: {session_id}")
+        elif session_id not in USER_SESSIONS or USER_SESSIONS[session_id].get("step") == "completed":
             USER_SESSIONS[session_id] = {
                 "step": "greet",
                 "report": {},
