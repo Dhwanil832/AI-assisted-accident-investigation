@@ -562,7 +562,7 @@ def chatbot_api(request):
                     "step": session_data["step"],
                     "report": session_data["report"],
                     "chatHistory": session_data.get("chatHistory", [])
-                })
+                },request.user)
 
             print("Received user input:", user_input)
             print("Current session data:", session_data)

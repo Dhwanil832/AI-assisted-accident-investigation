@@ -5,10 +5,13 @@ from datetime import datetime, timedelta
 
 class UnfinishedReportHandler:
     @staticmethod
-    def save_unfinished_report(session_id, report_data):
+    def save_unfinished_report(session_id, report_data,user):
         UnfinishedReport.objects.update_or_create(
             session_id=session_id,
-            defaults={'report_data': report_data}
+            defaults={
+                'report_data': report_data,
+                "user": user 
+                }
         )
 
     @staticmethod

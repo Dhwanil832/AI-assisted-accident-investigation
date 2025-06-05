@@ -1515,14 +1515,14 @@
             setupSeverityAutocomplete();
 
             // 页面加载时立即检查未完成的报告
-            fetch(`/api/chat/?session_id=${getSessionId()}&check_unfinished=true`)
+            fetch(`/chat/api/chat/?session_id=${getSessionId()}&check_unfinished=true`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.has_unfinished) {
                         showUnfinishedReportDialog(data.unfinished_data);
                     } else {
                         // 如果没有未完成的报告，初始化新的对话
-                        fetch(`/api/chat/?session_id=${getSessionId()}`)
+                        fetch(`/chat/api/chat/?session_id=${getSessionId()}`)
                             .then(r => r.json())
                             .then(data => {
                                 if (data.response) {
@@ -1534,7 +1534,7 @@
                 .catch(error => {
                     console.error('Error checking unfinished report:', error);
                     // 如果检查失败，仍然初始化新的对话
-                    fetch(`/api/chat/?session_id=${getSessionId()}`)
+                    fetch(`/chat/api/chat/?session_id=${getSessionId()}`)
                         .then(r => r.json())
                         .then(data => {
                             if (data.response) {
@@ -2056,7 +2056,7 @@
             userInput.disabled = false;
             sendButton.disabled = false;
 
-            fetch(`/api/chat/?session_id=${sessionId}`, {
+            fetch(`/chat/api/chat/?session_id=${sessionId}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -2417,7 +2417,7 @@
             const userInfo = storedUserInfo ? JSON.parse(storedUserInfo) : {};
 
             // 直接发送 yes 消息以触发提交，同时包含用户信息
-            fetch(`/api/chat/?session_id=${getSessionId()}`, {
+            fetch(`/chat/api/chat/?session_id=${getSessionId()}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -2467,7 +2467,7 @@
                 $("#user-input").prop('disabled', false);  // 禁用输入框防止用户干扰
                 appendMessage("Submit Report", true);  // 记录用户选择
                 // 直接发送 yes 消息以触发提交
-                fetch(`/api/chat/?session_id=${getSessionId()}`, {
+                fetch(`/chat/api/chat/?session_id=${getSessionId()}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ message: 'yes' })
@@ -2563,14 +2563,14 @@
             const sessionId = getSessionId();
 
             // First check if current user has an unfinished report
-            fetch(`/api/chat/?session_id=${sessionId}&check_unfinished=true`)
+            fetch(`/chat/api/chat/?session_id=${sessionId}&check_unfinished=true`)
                 .then(response => response.json())
                 .then(data => {
                     if (data.has_unfinished) {
                         showUnfinishedReportDialog(data.unfinished_data);
                     } else {
                         // If current user has no unfinished report, show all unfinished reports
-                        fetch(`/api/chat/?list_unfinished=true`)
+                        fetch(`/chat/api/chat/?list_unfinished=true`)
                             .then(response => response.json())
                             .then(data => {
                                 const reports = data.unfinished_reports;
@@ -2620,7 +2620,7 @@
             const newSession = getSessionId();
 
             // 3. 删除未完成的报告
-            fetch(`/api/chat/?session_id=${newSession}&handle_unfinished=true`, {
+            fetch(`/chat/api/chat/?session_id=${newSession}&handle_unfinished=true`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ continue: false })  // 告诉后端删除未完成的报告
@@ -2634,7 +2634,7 @@
                     localStorage.setItem('skip_unfinished_prompt', 'true');
 
                     // 6. 拉取新的欢迎语
-                    fetch(`/api/chat/?session_id=${newSession}`)
+                    fetch(`/chat/api/chat/?session_id=${newSession}`)
                         .then(r => r.json())
                         .then(data => {
                             if (data.response) appendMessage(data.response);
@@ -2673,7 +2673,7 @@
         function handleUnfinishedReport(continueReport) {
             const sessionId = getSessionId();
 
-            fetch(`/api/chat/?session_id=${sessionId}&handle_unfinished=true`, {
+            fetch(`/chat/api/chat/?session_id=${sessionId}&handle_unfinished=true`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ continue: continueReport })
@@ -2772,7 +2772,7 @@
         }
 
         function handleInitialOption(choice) {
-            fetch(`/api/chat/?session_id=${getSessionId()}`, {
+            fetch(`/chat/api/chat/?session_id=${getSessionId()}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ button_choice: choice })
@@ -2856,7 +2856,7 @@
         }
 
         function showUnfinishedReportsDialog() {
-            fetch(`/api/chat/?list_unfinished=true`)
+            fetch(`/chat/api/chat/?list_unfinished=true`)
                 .then(response => response.json())
                 .then(data => {
                     const reports = data.unfinished_reports;
@@ -2908,7 +2908,7 @@
         }
 
         function resumeReport(sessionId) {
-            fetch(`/api/chat/?resume_report=true`, {
+            fetch(`/chat/api/chat/?resume_report=true`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ session_id: sessionId })
@@ -3030,7 +3030,7 @@
         function doAdminRemove(sessionId) {
             const username = document.getElementById('admin-user').value;
             const password = document.getElementById('admin-pass').value;
-            fetch(`/api/chat/?remove_report=true`, {
+            fetch(`/chat/api/chat/?remove_report=true`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ session_id: sessionId, username, password })
