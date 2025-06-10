@@ -157,7 +157,7 @@ def required_sections(incident_type: str):
 
 # Required fields for incident reports
 REQUIRED_FIELDS = {
-    "basic_info": ["date", "time","shift","location", "person_involved", "person_type", "incident_type", "actions_taken", "severity"],
+    "basic_info": ["datetime","shift","location", "person_involved", "person_type", "incident_type", "actions_taken", "severity"],
     "injury_data": ["accident_type", "accident_agent", "injury_type", "injury_agent","sif_case"],
     "near_miss_data": ["sif_case", "life_saving_rules"],
     "equipment_damage_data": ["damage_amount", "activity_type", "incident_activity", "incident_agent"]
@@ -249,8 +249,7 @@ Your responsibilities:
 You are expected to extract and return the following fields (grouped logically):
 
 basic_info:
-- date (Format: YYYY-MM-DD. Leave blank if not provided.)
-- time (24-hour format preferred. e.g., “14:30”)
+- datetime (Format: YYYY-MM-DD HH:MM in 24-hour)
 - shift (inferred from time or if stated)
 - location (specific place in the workplace)
 - person_involved (names or roles of people involved)
@@ -395,12 +394,9 @@ def chatbot_api(request):
                 show_widget = None
 
                 # 检查基本信息字段
-                if not basic_info.get("date"):
-                    next_question = "Please select the date of the incident."
-                    show_widget = "date-picker"
-                elif not basic_info.get("time"):
-                    next_question = "What time did the incident occur? (24-hour format e.g. 14:30)"
-                    show_widget = "time-picker-widget"
+                if not basic_info.get("datetime"):
+                    next_question = "When did the incident occur?"
+                    show_widget = "datetime-picker"
                 elif not basic_info.get("location"):
                     next_question = "Where did this incident occur?"
                 elif not basic_info.get("person_involved"):
@@ -1103,10 +1099,8 @@ def generate_summary(report):
     basic = report.get("basic_info", {})
     summary_parts = []
 
-    if basic.get("date"):
-        line = f"On {basic['date']}"
-        if basic.get("time"):
-            line += f" at {basic['time']}"
+    if basic.get("datetime"):
+        line = f"On {basic['datetime']}"
         summary_parts.append(line + ",")
 
     if basic.get("shift"):

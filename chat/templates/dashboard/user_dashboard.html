@@ -351,12 +351,12 @@
                             <li class="report-item">
                                 <span class="report-title">{{ report.title }}</span>
                                 <div class="report-actions">
-                                    <form action="{% url 'chatbot_ui' %}?resume_report=true" method="POST" style="display:inline;">
+                                    <form action="{% url 'chat_ui' %}?resume_report=true" method="POST" style="display:inline;">
                                         {% csrf_token %}
                                         <input type="hidden" name="session_id" value="{{ report.session_id }}">
                                         <button type="submit" class="btn btn-outline btn-sm">▶️ Resume</button>
                                     </form>
-                                    <form action="{% url 'delete_unfinished_report' report.session_id %}" method="POST" style="display:inline;">
+                                    <form action="{% url 'delete_report' report.session_id %}" method="POST" style="display:inline;">
                                         {% csrf_token %}
                                         <button type="submit" class="btn btn-outline-danger btn-sm">🗑️ Delete</button>
                                     </form>

@@ -1056,8 +1056,7 @@
                 </div>
                 <div class="accordion-content" id="basic-info-content">
                     <ul id="basic-info-status">
-                        <li><strong>Date:</strong> <span id="field-date">Missing</span></li>
-                        <li><strong>Time:</strong> <span id="field-time">Missing</span></li>
+                        <li><strong>Date/Time:</strong> <span id="field-datetime">Missing</span></li>
                         <li><strong>Shift:</strong> <span id="field-shift">Missing</span></li>
                         <li><strong>Location:</strong> <span id="field-location">Missing</span></li>
                         <li><strong>Person Involved:</strong> <span id="field-person_involved">Missing</span></li>
@@ -1150,6 +1149,10 @@
             <div class="widget-container" id="date-picker-widget" style="display: none">
                 <input type="text" id="datepicker" placeholder="Select date">
                 <button onclick="submitDate()" class="btn-primary">Confirm Date</button>
+            </div>
+            <div class="widget-container" id="datetime-picker" style="display: none">
+                <input type="datetime-local" id="datetime-input" />
+                <button onclick="submitDatetime()" class="btn-primary">Confirm Date & Time</button>
             </div>
             <div class="widget-container" id="time-picker-widget" style="display: none">
                 <input type="time" id="timeInput" />
@@ -1501,7 +1504,8 @@
             "damage_amount": "damage-amount-picker",
             "activity_type": "activity-type-picker",
             "incident_activity": "incident-activity-picker",
-            "incident_agent": "equipment-incident-agent-picker"
+            "incident_agent": "equipment-incident-agent-picker",
+            "datetime": "datetime-picker",
         };
 
         $(document).ready(function () {
@@ -1728,6 +1732,15 @@
             $("#user-input").prop('disabled', false);
             sendMessage(selectedDate);
         }
+        function submitDatetime() {
+            const value = document.getElementById('datetime-input').value;
+            if (!value) return;
+
+            updateSidebarField('basic_info', 'datetime', value);
+            $("#datetime-picker").hide();
+            $("#user-input").prop('disabled', false);
+            sendMessage(value);
+        }
 
         function submitTime() {
             const timeVal = document.getElementById('timeInput').value;
@@ -1869,8 +1882,8 @@
                     widget = summaryButtons;
                 }
 
-                if (messageStr.includes('select the date')) {
-                    widget = document.getElementById('date-picker-widget');
+                if (messageStr.toLowerCase().includes('datetime') || messageStr.toLowerCase().includes('date and time')) {
+                    widget = document.getElementById('datetime-picker');
                 } else if (messageStr.toLowerCase().includes('select') && messageStr.toLowerCase().includes('severity')) {
                     widget = document.getElementById('severity-picker').cloneNode(true);
                     widget.style.display = 'block';
