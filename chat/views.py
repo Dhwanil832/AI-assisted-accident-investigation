@@ -102,20 +102,36 @@ SKIP_PHRASES = [
 ]
 
 widget_map = {
+    "datetime": "datetime-picker",
     "shift": "shift-picker",
+    "location": None,
+    "person_involved": None,
     "person_type": "person-type-picker",
+    "incident_type": None,  # Set at the start
+    "actions_taken": None,
     "severity": "severity-picker",
+
+    # Injury Data
     "accident_type": "accident-type-picker",
     "accident_agent": "accident-agent-picker",
     "injury_type": "injury-type-picker",
     "injury_agent": "injury-agent-picker",
     "sif_case": "sif-case-picker",
+
+    # Near Miss Data
     "life_saving_rules": "life-saving-rules-picker",
+
+    # Equipment Damage Data
     "damage_amount": "damage-amount-picker",
     "activity_type": "activity-type-picker",
     "incident_activity": "incident-activity-picker",
-    "incident_agent": "equipment-incident-agent-picker"
+    "incident_agent": "equipment-incident-agent-picker",
+
+    # Confirmation & Summary
+    "confirm": "confirm-buttons",
+    "summary": "summary-buttons",
 }
+
 
 def is_admin(user):
     return user.is_authenticated and user.role == 'admin'
@@ -568,33 +584,28 @@ def chatbot_api(request):
                     "response": "Hello! How can I help you?",
                     "show_widget": None
                 })
-            # === STEP 1.1: Always send message to LLM ===
-            if session_data["step"] == "extract_fields" and user_input:
+            # === STEP 1.1: Always send all inputs (including natural-language updates) to LLM ===
+            if user_input:
                 try:
                     rag_context = ""
                     if session_data.get("rag_retrieved_incidents"):
                         rag_context = "Here are some similar past incidents and actions taken:\n"
                         for idx, inc in enumerate(session_data["rag_retrieved_incidents"], 1):
-                            description = inc.get("description") or inc.get("Unnamed: 35") or inc.get("Unnamed: 37") or ""
-                            if description:
-                                rag_context += f"- Description: {description}\n"
-                            actions_taken = inc.get("actions_taken") or inc.get("Unnamed: 41") or ""
-                            if actions_taken:
-                                rag_context += f"- Actions Taken: {actions_taken}\n"
-                            location = inc.get("location") or inc.get("Unnamed: 34") or ""
-                            if location:
-                                rag_context += f"- Location: {location}\n"
-                            sif_case = inc.get("sif_case") or inc.get("Unnamed: 55") or ""
-                            if sif_case:
-                                rag_context += f"- SIF Case: {sif_case}\n"
-                            rag_context += "\n"
+                            lines = []
+                            for key in ["description", "actions_taken", "location", "sif_case"]:
+                                val = inc.get(key, "")
+                                if val and str(val).strip().lower() != "nan":
+                                    label = key.replace("_", " ").title()
+                                    lines.append(f"{label}: {val}")
+                            if lines:
+                                rag_context += f"- " + "\n  ".join(lines) + "\n\n"
 
                     report_state_json = json.dumps(session_data.get("report", {}), indent=2)
                     llm_user_message = (
                         f"{rag_context}\n"
-                        f"Here is the current report state:\n{report_state_json}\n\n"
+                        f"Current report state:\n{report_state_json}\n\n"
                         f"User message: {user_input}\n"
-                        f"Please extract updates and identify missing fields accordingly."
+                        f"Extract updates and identify missing fields accordingly."
                     )
 
                     response = ollama.chat(
@@ -610,60 +621,51 @@ def chatbot_api(request):
                     json_match = re.search(r"\{.*\}", extracted_content, re.DOTALL)
                     if json_match:
                         extracted_json = json.loads(json_match.group(0))
-
-                        for section in ["basic_info", "injury_data", "near_miss_data", "equipment_damage_data"]:
+                        for section, fields in extracted_json.items():
                             if section not in session_data["report"]:
                                 session_data["report"][section] = {}
-                            if section in extracted_json:
-                                for key, value in extracted_json[section].items():
-                                    if section == "basic_info" and key == "incident_type" and session_data["report"][section].get("incident_type"):
-                                        continue
-                                    if isinstance(value, str) and value and "?" not in value:
-                                        if key in ["incident_type", "actions_taken"] and session_data["report"][section].get(key):
-                                            continue
-                                        existing_value = session_data["report"][section].get(key)
-                                        if not existing_value or (existing_value and value != existing_value):
-                                            session_data["report"][section][key] = value
-                                            print(f"Updated {section}.{key} to: {value}")
+
+                            for key, new_value in fields.items():
+                                current_value = session_data["report"][section].get(key, "").strip()
+
+                                # Always update if:
+                                # - Field was empty
+                                # - New value is different from old
+                                if isinstance(new_value, str) and new_value.strip() == "":
+                                    # User intent to skip was inferred by LLM
+                                    session_data["report"][section][key] = ""
+                                    print(f"[SKIPPED via LLM] {section}.{key} marked as skipped (empty string from LLM).")
+                                    
+                                elif isinstance(new_value, str) and new_value.strip():
+                                    if current_value != new_value.strip():
+                                        session_data["report"][section][key] = new_value.strip()
+                                        print(f"[UPDATE] {section}.{key} updated from '{current_value}' to '{new_value.strip()}'")
+
 
                     incident_type = session_data["report"]["basic_info"].get("incident_type", "")
                     required_sections_list = required_sections(incident_type)
 
-                    # Check if user wants to skip a field
-                    if user_input.lower().strip() in SKIP_PHRASES:
-                        for section in required_sections_list:
-                            for field in REQUIRED_FIELDS.get(section, []):
-                                if not session_data["report"].get(section, {}).get(field):
-                                    session_data["report"].setdefault(section, {})[field] = ""
-                                    return JsonResponse({
-                                        "response": f"Okay, I've skipped the {field.replace('_', ' ').title()}.",
-                                        "extracted": session_data["report"],
-                                        "show_widget": None
-                                    })
-
-                    # Fallback: ask for the next missing field
+                    # Check for next missing fields
                     for section in required_sections_list:
-                        for field in REQUIRED_FIELDS.get(section, []):
-                            if not session_data["report"].get(section, {}).get(field):
-                                field_label = field.replace("_", " ").title()
-                                return JsonResponse({
-                                    "response": f"Thanks, I’ve noted that. Could you please provide the {field_label}?",
-                                    "extracted": session_data["report"],
-                                    "show_widget": widget_map.get(field, None)
+                        value = session_data["report"].get(section, {}).get(field, None)
+                        if value is None or (isinstance(value, str) and value.strip() == ""):
+                            field_label = field.replace("_", " ").title()
+                            return JsonResponse({
+                                "response": f"Could you please provide the {field_label}?",
+                                "extracted": session_data["report"],
+                                "show_widget": widget_map.get(field, None)
                                 })
-
-                    # If no missing field was found — everything is complete
+                    
                     session_data["step"] = "confirm_extracted"
-
                     return JsonResponse({
-                        "response": "Thanks for the information. Here's what I have so far, please confirm if this is correct:",
+                        "response": "Thanks for the information. Please confirm the details:",
                         "extracted": session_data["report"],
                         "show_widget": "confirm-buttons"
                     })
 
-
                 except Exception as e:
                     print(f"LLM block error: {str(e)}")
+                    return JsonResponse({"error": "LLM parsing error, please try again."}, status=500)
 
             if session_data["step"] == "greet" and button_choice:
                 if button_choice in INCIDENT_TYPE_OPTIONS:
@@ -770,6 +772,8 @@ def chatbot_api(request):
                             "show_widget": "summary-buttons"
                             })
                     # Save the report
+                    report_data = session_data["report"]
+        
                     skip_count = 0
                     for section, fields in REQUIRED_FIELDS.items():
                         for field in fields:
@@ -777,13 +781,17 @@ def chatbot_api(request):
                             if value == "" or value is None:
                                 skip_count += 1
 
+                    
+                    is_flagged = skip_count >= 3
                     report = IncidentReport.objects.create(
-                        report_json=session_data["report"],
+                        report_json=report_data,
                         creator_name=user_info.get("name", "Unknown"),
                         creator_job_title=user_info.get("job", "Unknown"),
-                        flagged=skip_count >= 2,
-                        flag_reason="Multiple fields skipped" if skip_count >= 2 else ""
+                        flagged=is_flagged,
+                        flag_reason="Multiple skipped fields" if is_flagged else ""
                     )
+
+
                     
                     # Update all temporary files associated with this session
                     UploadedFile.objects.filter(
@@ -795,7 +803,7 @@ def chatbot_api(request):
                     )
                     
                     session_data["step"] = "completed"
-                    redirect_url = "admin_dashboard" if request.user.role == "admin" else "user_dashboard"
+                    redirect_url = request.session.get("user_role", "user_dashboard")
 
                     UnfinishedReportHandler.delete_unfinished_report(session_id)
                     # Reset the session for the next report
@@ -943,6 +951,7 @@ def chatbot_ui(request):
         session_id = "default"
         if "restored_report" in request.session:
             USER_SESSIONS[session_id] = request.session.pop("restored_report")
+            request.session["user_role"] = request.user.role
             print(f"Restored session: {session_id}")
         elif session_id not in USER_SESSIONS or USER_SESSIONS[session_id].get("step") == "completed":
             USER_SESSIONS[session_id] = {
@@ -1181,23 +1190,22 @@ def admin_dashboard(request):
             "flagged": flagged
         })
 
-    return render(request, "accounts/admin_dashboard.html", {"user_data": user_data})
+    return render(request, "dashboard/admin_dashboard.html", {"user_data": user_data})
 
 
 @login_required
 def resume_unfinished_report(request, session_id):
-    # Retrieve the unfinished report and inject it into session
     report_data = UnfinishedReportHandler.get_unfinished_report(session_id)
     if report_data:
+        # Restore into Django session
         request.session["restored_report"] = report_data
         request.session["session_id"] = session_id
+        request.session["user_role"] = request.user.role  # Track role explicitly for UI decisions
         return redirect("chatbot_ui")
     else:
         messages.error(request, "Unable to resume report.")
-        if request.user.role == "admin":
-            return redirect("admin_dashboard")
-        else:
-            return redirect("user_dashboard")
+        dashboard_url = "admin_dashboard" if request.user.role == "admin" else "user_dashboard"
+        return redirect(dashboard_url)
 
 
 @login_required

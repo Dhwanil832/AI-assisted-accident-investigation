@@ -71,22 +71,24 @@ def ingest_excel(file_path, incident_type):
     print(f"[DEBUG] Ingested {len(descs)} records from {file_path}.")
 
 # ------- Query -------
-def search_similar_incidents(query, top_k=5):
-    """
-    Returns the top_k most similar incidents to the query.
-    """
-    global faiss_index, faiss_meta
-    if faiss_index is None or faiss_index.ntotal == 0:
-        print("[DEBUG] FAISS index is empty. Did you ingest or load?")
-        return []
-    q_vec = embed_texts([query])
-    D, I = faiss_index.search(np.array(q_vec, dtype=np.float32), top_k)
-    results = []
-    for idx in I[0]:
-        if idx < len(faiss_meta):
-            results.append(faiss_meta[idx])
-    return results
+def search_similar_incidents(query, top_k=10):
+    results = index.similarity_search_with_score(query, k=top_k)
+    
+    valid_incidents = []
+    for doc, score in results:
+        metadata = doc.metadata
+        # Skip if all key fields are empty or NaN
+        if all(
+            not metadata.get(key) or str(metadata.get(key)).strip().lower() == "nan"
+            for key in ["description", "actions_taken", "location", "sif_case"]
+        ):
+            continue
+        valid_incidents.append(metadata)
 
+        if len(valid_incidents) == 3:  # stop at 3 good results
+            break
+
+    return valid_incidents
 # Example usage pattern:
 # Only needed ONCE:
 #   ingest_excel("myfile.xlsx", "Personal Injuries")

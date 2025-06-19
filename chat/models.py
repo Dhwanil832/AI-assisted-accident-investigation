@@ -12,6 +12,8 @@ class IncidentReport(models.Model):
     last_modified_name = models.CharField(max_length=100, blank=True)
     last_modified_job  = models.CharField(max_length=100, blank=True)
     last_modified_at   = models.DateTimeField(auto_now=True)
+    flagged = models.BooleanField(default=False)
+    flag_reason = models.CharField(max_length=255, blank=True)
 
     def __str__(self):
         return f"Report on {self.report_json.get('date', 'Unknown Date')} at {self.report_json.get('location', 'Unknown Location')}"

@@ -1491,22 +1491,24 @@
 
         // === Widget map: report field name -> widget ID ===
         const FIELD_WIDGET_MAP = {
-            "date": "date-picker",
-            "time": "time-picker-widget",
-            "severity": "severity-picker",
+            "datetime": "datetime-picker",
+            "shift": "shift-picker",
             "person_type": "person-type-picker",
-            "sif_case": "sif-case-picker",
-            "life_saving_rules": "life-saving-rules-picker",
+            "severity": "severity-picker",
             "accident_type": "accident-type-picker",
             "accident_agent": "accident-agent-picker",
             "injury_type": "injury-type-picker",
             "injury_agent": "injury-agent-picker",
+            "sif_case": "sif-case-picker",
+            "life_saving_rules": "life-saving-rules-picker",
             "damage_amount": "damage-amount-picker",
             "activity_type": "activity-type-picker",
             "incident_activity": "incident-activity-picker",
             "incident_agent": "equipment-incident-agent-picker",
-            "datetime": "datetime-picker",
+            "confirm": "confirm-buttons",
+            "summary": "summary-buttons"
         };
+
 
         $(document).ready(function () {
             $("#datepicker").datepicker({
@@ -2042,164 +2044,49 @@
 
         function sendMessage(customMessage = null) {
             const message = customMessage || document.getElementById('user-input').value;
-            if (!message) return;
+            if (!message.trim()) return;
 
             appendMessage(message, true);
+            document.getElementById('user-input').value = '';
 
-            if (!customMessage) {
-                document.getElementById('user-input').value = '';
-            }
-
-            const sessionId = getSessionId();
             const chatbox = document.getElementById('chatbox');
             const loadingDiv = document.createElement('div');
             loadingDiv.className = 'message bot-message';
             loadingDiv.id = 'loading-indicator';
-            loadingDiv.innerHTML = `
-                <div class="typing-indicator">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
-            `;
+            loadingDiv.innerHTML = `<div class="typing-indicator"><span></span><span></span><span></span></div>`;
             chatbox.appendChild(loadingDiv);
 
-            const userInput = document.getElementById('user-input');
-            const sendButton = document.querySelector('.input-container button');
-            userInput.disabled = false;
-            sendButton.disabled = false;
-
-            fetch(`/chat/api/chat/?session_id=${sessionId}`, {
+            fetch(`/chat/api/chat/?session_id=${getSessionId()}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    message: message,
-                    current_data: window.currentData
-                })
+                body: JSON.stringify({ message: message, current_data: window.currentData })
             })
                 .then(response => response.json())
                 .then(data => {
-                    // If backend says to redirect, go there immediately
+                    const loadingIndicator = document.getElementById('loading-indicator');
+                    if (loadingIndicator) loadingIndicator.remove();
+
                     if (data.redirect) {
                         window.location.href = data.redirect;
                         return;
                     }
-                    const loadingIndicator = document.getElementById('loading-indicator');
-                    if (loadingIndicator) {
-                        loadingIndicator.remove();
-                    }
-                    userInput.disabled = false;
-                    sendButton.disabled = false;
 
-                    // Clear the cache after successful request
-                    window.currentData = {};
-
-                    if (data.response) {
-                        // 如果是提交成功的消息，直接显示，不需要显示确认按钮
-                        if (data.response.includes("successfully recorded")) {
-                            clearSession();
-                            const messageDiv = document.createElement('div');
-                            messageDiv.className = 'message bot-message';
-                            messageDiv.innerText = data.response;
-
-                            // 创建"Start New Report"按钮
-                            const buttonContainer = document.createElement('div');
-                            buttonContainer.className = 'widget-container';
-                            buttonContainer.style.display = 'block';
-                            buttonContainer.style.marginTop = '10px';
-
-                            const newReportButton = document.createElement('button');
-                            newReportButton.className = 'btn btn-primary';
-                            newReportButton.textContent = 'Start New Report';
-                            newReportButton.onclick = function () {
-                                window.location.reload();
-                            };
-
-                            buttonContainer.appendChild(newReportButton);
-                            messageDiv.appendChild(buttonContainer);
-                            $('#chatbox').append(messageDiv);
-                        } else if (data.response.includes("Does this summary look correct")) {
-                            // 如果是确认消息，显示带按钮的消息
-                            const messageDiv = document.createElement('div');
-                            messageDiv.className = 'message bot-message';
-                            messageDiv.innerText = data.response;
-
-                            const summaryButtons = document.createElement('div');
-                            summaryButtons.className = 'summary-buttons-inline';
-                            summaryButtons.innerHTML = `
-                            <button onclick="handleSubmitReport()" class="btn-primary">Submit Report</button>
-                            <button onclick="summaryChoice('change something')" class="btn-secondary">Make Changes</button>
-                            <button onclick="summaryChoice('add more info')" class="btn-info">Add More Info</button>
-                        `;
-
-                            messageDiv.appendChild(summaryButtons);
-                            $('#chatbox').append(messageDiv);
-                        }
-                        else if (data.response.includes("Based on similar incidents")) {
-                            appendMessage(data.response);
-                        }
-                        else {
-                            // 其他普通消息
-                            appendMessage(data.response);
-                        }
-                    }
-
-                    if (data.suggestions && Array.isArray(data.suggestions)) {
-                        window.lastSuggestionsList = data.suggestions;
-                    } else {
-                        window.lastSuggestionsList = null;
-                    }
-
-                    // 如果是最终确认消息，不显示新的确认界面
-                    if (message === 'confirm' && data.response && data.response.includes("Does this summary look correct")) {
-                        return;
-                    }
-
-                    if (data.extracted) {
-                        updateSidebarFromExtracted(data.extracted);
-                    }
+                    if (data.extracted) updateSidebarFromExtracted(data.extracted);
+                    appendMessage(data.response || "Sorry, I didn't understand that clearly.");
 
                     hideAllWidgets();
-
-
-                    if (data.response && data.response.includes("Does this summary look correct")) {
-                        $("#summary-buttons").show();
-                        $("#user-input").prop('disabled', false);
+                    if (data.show_widget) {
+                        const widgetElement = document.getElementById(data.show_widget);
+                        if (widgetElement) widgetElement.style.display = 'block';
                     }
 
-                    if (data.extracted) {
-                        if (data.extracted.basic_info) {
-                            for (const [key, val] of Object.entries(data.extracted.basic_info)) {
-                                const fieldElement = document.getElementById(`field-${key}`);
-                                if (fieldElement) {
-                                    fieldElement.textContent = val || 'Missing';
-                                }
-                            }
-                        }
-                        if (data.extracted.injury_data) {
-                            for (const [key, val] of Object.entries(data.extracted.injury_data)) {
-                                const fieldElement = document.getElementById(`field-${key}`);
-                                if (fieldElement) {
-                                    fieldElement.textContent = val || 'Missing';
-                                }
-                            }
-                        }
-                        appendMessage({ extracted: data.extracted });
-                    }
-
-                    if (!data.show_widget) {
-                        userInput.focus();
-                    }
+                    $("#user-input").prop('disabled', false).focus();
+                    window.currentData = {};
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    const loadingIndicator = document.getElementById('loading-indicator');
-                    if (loadingIndicator) {
-                        loadingIndicator.remove();
-                    }
-                    userInput.disabled = false;
-                    sendButton.disabled = false;
                     appendMessage('Sorry, something went wrong.');
+                    $("#user-input").prop('disabled', false);
                 });
         }
 
