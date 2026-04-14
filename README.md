@@ -255,13 +255,6 @@ Each agent is independently packaged. Organizations with existing reporting syst
 
 ---
 
-## Citation
-
-If you use AI-AAI in your research, please cite:
-
-> Dhwanil Chauhan and Qingyun Pu. "AI-AAI: Leveraging Large Language Models for Workplace Accident Investigations." AIST Foundation / SMSVC, 2025.
-
----
 
 ## Affiliation
 
